@@ -2,12 +2,15 @@ require 'objects/squareButton'
 require 'states/maingame/player'
 
 local feedback = require "states/maingame/feedback"
+local focus = require "objects/menuFocus"
+local touchControls = require "objects/touchControls"
 
 maingame_UI = {}
 
 local bigFont
 local xScale
 local pausedButton, continueButton, quitButton, restartButton, failedButton
+local pauseControls, failControls
 
 
 function maingame_UI:load()
@@ -20,6 +23,12 @@ function maingame_UI:load()
   restartButton = newSquareButton(gw / 2 + 250, gh / 2, 120, "Restart", Purple, White, 0, -25, function() gameManager.Restart() end)
   quitButton = newSquareButton(gw / 2 + 50, gh / 2 + 200, 120, "Quit", Red, White, 0, -25, gameManager.ReturnToMenu)
   continueButton = newSquareButton(gw / 2 + 50, gh / 2 - 200, 120, "Continue", Green, White, 0, -25, function() gameManager.Pause() end)
+  pauseControls = {continueButton, restartButton, quitButton}
+  failControls = {restartButton, quitButton}
+end
+
+function maingame_UI:gamepadpressed(button)
+  focus.press(gameManager.isFailed and failControls or pauseControls, button)
 end
 
 
@@ -51,6 +60,8 @@ function maingame_UI:draw()
     PauseScreen()
   elseif gameManager.isFailed then
     FailScreen()
+  else
+    touchControls.draw()
   end
 end
 
@@ -79,6 +90,7 @@ function Healthbar()
 end
 
 function FailScreen()
+  focus.enter(failControls)
   love.graphics.setColor(0, 0, 0, 0.6)
   love.graphics.rectangle('fill', 0, 0, gw, gh)  
   love.graphics.setColor(0.3, 0.3, 0.3, 0.5)
@@ -95,6 +107,7 @@ end
 
 
 function PauseScreen()
+  focus.enter(pauseControls)
   love.graphics.setColor(0, 0, 0, 0.6)
   love.graphics.rectangle('fill', 0, 0, gw, gh)  
   love.graphics.setColor(0.1, 0.1, 0.1, 0.5)
@@ -118,6 +131,18 @@ function MaingameOverlay()
   love.graphics.setColor(1, 1, 1, 1)
   love.graphics.setLineWidth(18)
   love.graphics.circle("line", gw / 2, gh / 2, gh * 0.1, 4)
+  for _, slider in ipairs(listOfSliders) do
+    if slider.holding and slider.type ~= 3 and not gameManager.pause and not gameManager.isFailed then
+      love.graphics.setColor(0.38, 1, 0.78, 0.25)
+      love.graphics.setLineWidth(30)
+      love.graphics.circle("line", gw / 2, gh / 2, gh * 0.1, 4)
+      love.graphics.setColor(0.48, 1, 0.82, 1)
+      love.graphics.setLineWidth(12)
+      love.graphics.circle("line", gw / 2, gh / 2, gh * 0.1, 4)
+      break
+    end
+  end
+  love.graphics.setColor(White)
   love.graphics.setLineWidth(112)
   love.graphics.circle("line", gw / 2, gh / 2, gh * 0.55, 4)
 end

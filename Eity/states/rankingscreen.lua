@@ -1,3 +1,4 @@
+local focus = require "objects/menuFocus"
 Rankingscreen = {}
 
 local bigFont
@@ -6,12 +7,14 @@ local titleFont
 local descFont
 local rankingFont
 local backButton, retryButton
+local controls
 
 function Rankingscreen:load()
   backButton = newButton(50, gh * 0.9, 200, 75, 10, "Back", GrayOpacity6, White, Blue,
     "center", 0, 10, function() stateManager.GameState = "Mainmenu" end)
   retryButton = newButton(280, gh * 0.9, 200, 75, 10, "Retry", GrayOpacity6, White, Green,
     "center", 0, 10, gameManager.Restart)
+  controls = {backButton, retryButton}
   rankingFont = love.graphics.newFont("assets/roboto.ttf", 556)
   bigFont = love.graphics.newFont("assets/roboto.ttf", 78)
   smallFont = love.graphics.newFont("assets/roboto.ttf", 48)
@@ -22,8 +25,10 @@ end
 function Rankingscreen:gamepadpressed(joystick, button)
   if button == "x" then
     gameManager.Restart()
-  elseif button == "a" then
-    stateManager.GameState = "Mainmenu"
+  elseif button == "b" then
+    backButton.func()
+  else
+    focus.press(controls, button)
   end
 end
 
@@ -33,6 +38,7 @@ function Rankingscreen:update(dt)
 end
 
 function Rankingscreen:draw()
+  focus.enter(controls)
   Rankingscreen.Background()
   Rankingscreen.Topbar()
   Rankingscreen.Results()

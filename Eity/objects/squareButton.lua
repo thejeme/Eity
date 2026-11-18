@@ -1,3 +1,4 @@
+local focus = require "objects/menuFocus"
 local squareButton = {}
 squareButton.__index = squareButton
 
@@ -44,6 +45,7 @@ function squareButton:draw()
   love.graphics.circle("fill", self.x, self.y, self.radius + self.scale, 4)
   love.graphics.setColor(1, 1, 1, 1)
   love.graphics.printf(self.text, self.x - self.radius + self.ox, self.y + self.oy, self.radius * 2, "center")
+  focus.draw(self)
 end
 
 function squareButton:contains(x, y)

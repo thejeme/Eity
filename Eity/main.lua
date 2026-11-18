@@ -7,6 +7,8 @@ require 'lib/simpleScale'
 local osName = love.system.getOS()
 isWeb = osName == "Web" or osName == "Emscripten"
 local input = require 'managers/input'
+local focus = require 'objects/menuFocus'
+local touchControls = require 'objects/touchControls'
 local discordRPC
 local startTime
 local nextPresenceUpdate = 0
@@ -79,5 +81,7 @@ function love.quit()
 end
 
 function love.keypressed(key)
+  focus.clear()
+  touchControls.active = false
   stateManager:keypressed(key)
 end

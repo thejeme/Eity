@@ -1,3 +1,4 @@
+local focus = require "objects/menuFocus"
 require 'states/mainmenu/options'
 require 'states/mainmenu/songselect'
 require 'states/mainmenu/mainmenu_Particles'
@@ -7,6 +8,7 @@ Mainmenu = {}
 
 local scaleX, scaleY
 
+local mainControls, quitControls
 local noButton, yesButton, eityButton, playButton, optionsButton, exitButton
 
 function Mainmenu:load()
@@ -25,44 +27,28 @@ function Mainmenu:load()
   optionsButton = newSquareButton(gw / 2 + 250, gh / 2, 120, "Options", Purple, White, 0, -25, function() menustate = "Options" end)
   exitButton = newSquareButton(gw / 2 + 50, gh / 2 + 200, 120, "Exit", Red, White, 0, -25, function() PressedQuit = true end)
     
+  mainControls = {playButton, optionsButton, exitButton}
+  quitControls = {noButton, yesButton}
   PressedQuit = false
 end
 
 
 function Mainmenu:gamepadpressed(joystick, button)
-  if menustate == "Startmenu" and not PressedQuit then
-    if button == "y" then
-      menustate = "Songselect" 
-      psystem:reset()
+  if menustate == "Startmenu" then
+    if PressedQuit then
+      if button == "b" then PressedQuit = false end
+      focus.press(quitControls, button)
+    elseif button == "y" then
+      playButton.func()
     elseif button == "b" then
-      menustate = "Options"
-    elseif button == "a" then
-      PressedQuit = true
-    end
-  elseif menustate == "Startmenu" and PressedQuit then
-    if button == "a" then
-      love.event.quit()
+      optionsButton.func()
     else
-      PressedQuit = false
+      focus.press(mainControls, button)
     end
   elseif menustate == "Options" then
-    if button == "a" or button == "b" then
-      BackToStartScreen()
-    end
-  elseif menustate == "Songselect" and isMods then
-    if button == "b" then isMods = false end
+    Options:gamepadpressed(button)
   elseif menustate == "Songselect" then
-    if button == "a" then
-      gameManager.RestartNewMap()
-    elseif button == "x" then
-      mapList.PickRandomMapIndex()
-    elseif button == "b" then
-      menustate = "Startmenu"
-    elseif button == "dpup" or button == "dpleft" then
-      mapList.mapListUp()
-    elseif button == "dpdown" or button == "dpright" then
-      mapList.mapListDown()
-    end
+    Songselect:gamepadpressed(button)
   end
 end
 
@@ -100,6 +86,7 @@ function Mainmenu:draw()
 end
 
 function menu_UI()
+  focus.enter(PressedQuit and quitControls or mainControls)
   love.graphics.setColor(1, 1, 1, 1)
   Mainmenu_Particles:draw()
   

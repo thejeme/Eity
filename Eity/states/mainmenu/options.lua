@@ -1,8 +1,10 @@
+local focus = require "objects/menuFocus"
 require 'lib/simple-slider'
 require 'objects/button'
 
 Options = {}
 
+local controls
 local backButton, generalButton, volumeButton, mainButton, musicButton, effectButton, slidertickButton
 local resolutionButton, vsyncButton, fpsButton
 local mainVolumeSlider, musicVolumeSlider, effectsVolumeSlider
@@ -24,6 +26,34 @@ function Options:load()
   mainVolumeSlider = newSlider(gw * 0.56, gh / 2 + 100, gw * 0.15, saveManager.settings.mainVolume, 0, 2, function (v) soundManager:SetMainVolume(v) end)
   musicVolumeSlider = newSlider(gw * 0.56, gh / 2 + 175, gw * 0.15, saveManager.settings.musicVolume, 0, 0.1, function (v) soundManager:SetMusicVolume(v) end)
   effectsVolumeSlider = newSlider(gw * 0.56, gh / 2 + 250, gw * 0.15, saveManager.settings.effectVolume, 0, 0.1, function (v) soundManager:SetEffectsVolume(v) end)
+  resolutionButton.onConfirm = function() self:mousepressed(gw * 0.51 + 100, gh / 2 - 275, 2) end
+  resolutionButton.onDirection = function(button)
+    if button ~= "dpleft" and button ~= "dpright" then return false end
+    self:mousepressed(gw * 0.51 + 100, gh / 2 - 275, button == "dpleft" and 1 or 2)
+    return true
+  end
+  vsyncButton.onConfirm = function() self:mousepressed(gw * 0.63, gh / 2 - 200, 1) end
+  fpsButton.onConfirm = function() self:mousepressed(gw * 0.63, gh / 2 - 125, 1) end
+  slidertickButton.onConfirm = function() self:mousepressed(gw * 0.63, gh / 2 + 325, 1) end
+  for row, slider in pairs({[mainButton] = mainVolumeSlider, [musicButton] = musicVolumeSlider,
+      [effectButton] = effectsVolumeSlider}) do
+    row.onDirection = function(button)
+      if button ~= "dpleft" and button ~= "dpright" then return false end
+      slider.value = math.max(0, math.min(1, slider.value + (button == "dpleft" and -0.05 or 0.05)))
+      slider.setter(slider:getValue())
+      return true
+    end
+  end
+  controls = {resolutionButton, vsyncButton, fpsButton, mainButton, musicButton,
+    effectButton, slidertickButton, backButton}
+end
+
+function Options:gamepadpressed(button)
+  if button == "b" then
+    BackToStartScreen()
+  else
+    focus.press(controls, button)
+  end
 end
 
 function Options:update(dt)
@@ -35,8 +65,14 @@ function Options:update(dt)
 end
 
 function Options:draw()
+  focus.enter(controls)
   DrawButtons()
   DrawSliders()
+  if focus.isSelected(resolutionButton) or focus.isSelected(mainButton)
+      or focus.isSelected(musicButton) or focus.isSelected(effectButton) then
+    love.graphics.setColor(White)
+    love.graphics.printf("Left / Right to adjust", 0, gh - 70, gw, "center")
+  end
 end
 
 local function onResolution(x, y)

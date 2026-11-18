@@ -1,4 +1,6 @@
 local input = {}
+local focus = require "objects/menuFocus"
+local touchControls = require "objects/touchControls"
 local touch
 local stickDirections = {}
 
@@ -23,6 +25,8 @@ end
 
 function love.mousepressed(x, y, button, isTouch)
   if not isTouch then
+    focus.clear()
+    touchControls.active = false
     x, y = simpleScale.toGame(x, y)
     pressPointer(x, y, button)
   end
@@ -33,22 +37,20 @@ function love.wheelmoved(_, y)
 end
 
 function love.touchpressed(id, x, y)
-  if touch then return end
+  focus.clear()
+  touchControls.active = true
   x, y = simpleScale.toGame(x, y)
   if not simpleScale.contains(x, y) then return end
+  if stateManager.GameState == "Maingame" and not gameManager.pause and not gameManager.isFailed then
+    touchControls.press(x, y)
+    return
+  end
+
+  if touch then return end
   touch = {id = id, x = x, y = y, startY = y}
   touchPointerDown = true
 
-  if stateManager.GameState == "Maingame" and not gameManager.pause and not gameManager.isFailed then
-    local dx, dy = x - gw / 2, y - gh / 2
-    if math.abs(dx) + math.abs(dy) < gh * 0.1 then
-      gameManager.Pause()
-    elseif math.abs(dx) > math.abs(dy) then
-      player:keypressed(dx < 0 and "left" or "right")
-    else
-      player:keypressed(dy < 0 and "up" or "down")
-    end
-  elseif songListActive() and x >= gw - 820 and x < gw - 120 and y >= gh * 0.08 and y < gh * 0.92 then
+  if songListActive() and x >= gw - 820 and x < gw - 120 and y >= gh * 0.08 and y < gh * 0.92 then
     touch.onList = true
   else
     pressPointer(x, y, 1)
@@ -96,6 +98,8 @@ function love.visible(visible)
 end
 
 function love.gamepadpressed(joystick, button)
+  touchControls.active = false
+  focus.active = true
   stateManager:gamepadpressed(joystick, button)
 end
 
@@ -116,7 +120,7 @@ local function handleAxis(joystick, axis, value)
   local direction = value <= -0.55 and directions[1] or value >= 0.55 and directions[2]
   if direction and direction ~= active[axis] then
     active[axis] = direction
-    stateManager:gamepadpressed(joystick, direction)
+    love.gamepadpressed(joystick, direction)
   elseif math.abs(value) < 0.35 then
     active[axis] = nil
   end
@@ -135,14 +139,14 @@ local hats = {l = "dpleft", r = "dpright", u = "dpup", d = "dpdown"}
 
 function love.joystickpressed(joystick, button)
   if not joystick:isGamepad() and buttons[button] then
-    stateManager:gamepadpressed(joystick, buttons[button])
+    love.gamepadpressed(joystick, buttons[button])
   end
 end
 
 function love.joystickhat(joystick, _, direction)
   local button = hats[direction] or hats[direction:sub(1, 1)]
   if not joystick:isGamepad() and button then
-    stateManager:gamepadpressed(joystick, button)
+    love.gamepadpressed(joystick, button)
   end
 end
 

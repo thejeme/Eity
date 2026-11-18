@@ -100,8 +100,8 @@ function Maingame:gamepadpressed(joystick, button)
       gameManager.Pause()
     elseif button == "b" then
       gameManager.Restart()
-    elseif button == "a" then
-      gameManager.ReturnToMenu()
+    else
+      maingame_UI:gamepadpressed(button)
     end
   elseif button == "start" then
     gameManager.Pause()

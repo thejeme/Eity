@@ -1,3 +1,4 @@
+local focus = require "objects/menuFocus"
 local button = {}
 button.__index = button
 
@@ -43,6 +44,7 @@ function button:draw()
   love.graphics.rectangle('line', self.x, self.y, self.width, self.height, self.corner)
   love.graphics.setColor(1, 1, 1, 1)
   love.graphics.printf(self.text, self.x + self.ox, self.y + self.oy, self.width, self.textAlign)
+  focus.draw(self)
 end
 
 function button:contains(x, y)

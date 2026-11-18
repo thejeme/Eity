@@ -1,3 +1,4 @@
+local focus = require "objects/menuFocus"
 mapList = {}
 
 local bigFont
@@ -95,7 +96,7 @@ local function rowAt(x, y)
   if x >= left and x < left + width and y < top + 100 then return index end
 end
 
-function mapList:draw()
+function mapList:draw(songFocused)
   local hovered = rowAt(mx, my)
   for row, mapIndex in ipairs(songOrder) do
     local left, top, width = rowBounds(row)
@@ -120,6 +121,9 @@ function mapList:draw()
     love.graphics.setColor(DifficultyColors[difficulty] or White)
     love.graphics.printf(difficulty, left + 30, top + 65, 700, "left")
     DrawGrade(mapIndex, top + 16)
+    if row == selectedRow and songFocused then
+      focus.drawOutline({x = left, y = top, width = width, height = 100})
+    end
   end
 end
 

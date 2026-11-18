@@ -1,3 +1,4 @@
+local focus = require "objects/menuFocus"
 require 'objects/button'
 require 'objects/mapList'
 
@@ -6,6 +7,7 @@ Songselect = {}
 local bigFont, smallFont, smallestFont
 local barOpacity = 0.8
 
+local songControls, modControls, songRows
 local playButton, backButton, randomButton, modsButton
 local modsHiddenButton, modsHalfSpeedButton, modsDoubleSpeedButton, modsHiddenButton, modsFlashlightButton, modsNoFailButton, modsAutoButton
 
@@ -31,6 +33,34 @@ function Songselect:load()
   modsAutoButton = newButton(gw * 0.52, gh * 0.6, 150, 50, 10, "Auto", GrayOpacity6, Red, Green, "center", 0, 10, function() enableAutoMod() end, true)
   modsbackButton = newButton(gw * 0.46, gh * 0.7, gw * 0.08, 50, 10, "Back", GrayOpacity6, White, White, "center", 0, 10, function() isMods = false end)
   
+  songRows = {x = gw - 125, y = gh * 0.85, func = playButton.func}
+  songRows.onDirection = function(button)
+    if button == "dpup" then
+      mapList.mapListUp()
+    elseif button == "dpdown" then
+      mapList.mapListDown()
+    elseif button == "dpleft" or button == "dpright" then
+      focus.select(playButton)
+    else
+      return false
+    end
+    return true
+  end
+  songControls = {songRows, backButton, modsButton, randomButton, playButton}
+  modControls = {modsHalfSpeedButton, modsDoubleSpeedButton, modsHiddenButton,
+    modsFlashlightButton, modsNoFailButton, modsAutoButton, modsbackButton}
+end
+
+function Songselect:gamepadpressed(button)
+  if button == "b" then
+    if isMods then modsbackButton.func() else backButton.func() end
+  elseif isMods then
+    focus.press(modControls, button)
+  elseif button == "x" then
+    randomButton.func()
+  else
+    focus.press(songControls, button)
+  end
 end
 
 function Songselect:update(dt)
@@ -52,13 +82,14 @@ function Songselect:update(dt)
 end
 
 function Songselect:draw()
+  focus.enter(isMods and modControls or songControls)
   Background()  
   if not isMods then
     local left, top = love.graphics.transformPoint(0, gh * 0.08)
     local right, bottom = love.graphics.transformPoint(gw, gh * 0.92)
     love.graphics.push("all")
     love.graphics.intersectScissor(left, top, right - left, bottom - top)
-    mapList:draw()
+    mapList:draw(focus.isSelected(songRows))
     love.graphics.pop()
     BottomBar()
     TopBar()
@@ -191,6 +222,9 @@ function BottomBar()
   modsButton:draw()
   randomButton:draw()
   playButton:draw()
+  if focus.isSelected(songRows) then
+    love.graphics.printf("Left / Right for song actions", 230, gh * 0.94 + 10, 490, "left")
+  end
 end
 
 function TopBar()
