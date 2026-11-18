@@ -1,5 +1,6 @@
 function love.conf(t)
-  t.version = "11.5"
+  -- The Web package runs on LÖVE 11.4.
+  t.version = "11.4"
   t.identity = "eity"
   t.window.title = "Eity"
   -- Use a small window icon for X11. The original artwork is kept at full size.
