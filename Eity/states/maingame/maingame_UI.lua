@@ -1,6 +1,8 @@
 require 'objects/squareButton'
 require 'states/maingame/player'
 
+local feedback = require "states/maingame/feedback"
+
 maingame_UI = {}
 
 local bigFont
@@ -31,17 +33,15 @@ function maingame_UI:update(dt)
   else
     xScale = 20
   end
-  if xbar <= xScale then
-    xbar = xbar + (dt * 170)
-  elseif xbar >= xScale then
-    xbar = xbar - (dt * 400)
-  end
+  xScale = math.max(20, xScale)
+  xbar = xScale + (xbar - xScale) * math.exp(-10 * dt)
 end
 
 
 
 function maingame_UI:draw()
   MaingameOverlay()
+  feedback.draw()
   if (isEnabledUI) then
     Healthbar()
     scoreManager:draw()

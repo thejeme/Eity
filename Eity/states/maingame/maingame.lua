@@ -3,6 +3,8 @@ require 'states/maingame/arrow'
 require 'states/maingame/slider'
 require 'states/maingame/player'
 
+local feedback = require "states/maingame/feedback"
+
 Maingame = {}
 
 function Maingame:load()
@@ -26,7 +28,8 @@ function Maingame:update(dt)
   
   if not gameManager.pause and not gameManager.isFailed then
     love.mouse.setVisible(false)
-    player:update(dt) 
+    feedback.update(dt)
+    player:update(dt)
     mapSong:setPitch(modManager.getSpeed())
     mapSong:play()
     gameManager.gametime = gameManager.gametime + dt * modManager.getSpeed()

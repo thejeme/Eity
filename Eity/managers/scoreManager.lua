@@ -1,3 +1,5 @@
+local feedback = require "states/maingame/feedback"
+
 scoreManager = {}
 
 local note
@@ -19,6 +21,7 @@ function scoreManager.AddCombo()
 end
 
 function scoreManager.Restart()
+  feedback.reset()
   scoreManager.score = 0
   scoreManager.combo = 0
   scoreManager.maxCombo = 0
@@ -58,7 +61,7 @@ function scoreManager.CalculateTotalNotes()
   end
 end
 
-function scoreManager.AddScore(type)
+function scoreManager.AddScore(type, note)
   if (type == "perfect") then
       scoreManager.AddCombo()
       scoreManager.hits = scoreManager.hits + 1
@@ -87,6 +90,7 @@ function scoreManager.AddScore(type)
         scoreManager.score = 0
       end
   end
+  feedback.hit(type, note, scoreManager.combo)
 end
 
 function scoreManager:update(dt)

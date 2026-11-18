@@ -33,6 +33,7 @@ function Songselect:load()
 end
 
 function Songselect:update(dt)
+  mapList:update(dt)
   if not isMods then
     backButton:update(dt)
     modsButton:update(dt)

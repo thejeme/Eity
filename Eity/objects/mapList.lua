@@ -7,6 +7,7 @@ local smallestFont
 local maplist
 local scrollY
 local selectedMap
+local selectionGlow = 0
 
 function mapList:load(listOfMaps)
   bigFont = love.graphics.newFont("assets/roboto.ttf", 84)
@@ -25,6 +26,7 @@ end
 local function selectMap(index)
   if index ~= selectedMap then
     selectedMap = index
+    selectionGlow = 1
     img = gameManager:setBackground()
   end
 end
@@ -52,6 +54,10 @@ function mapList.PickRandomMapIndex()
   end
 end
 
+function mapList:update(dt)
+  selectionGlow = math.max(0, selectionGlow - dt * 4)
+end
+
 function mapList:draw()
   for i, v in ipairs(maplist) do
     if (i == selectedMap) then
@@ -59,6 +65,10 @@ function mapList:draw()
       love.graphics.rectangle('fill', gw - 820, scrollY + 100 + 111 * (i - 1), 700, 100, 10)
       love.graphics.setColor(White)
       love.graphics.rectangle('line', gw - 820, scrollY + 100 + 111 * (i - 1), 700, 100, 10)
+      local top = scrollY + 100 + 111 * (i - 1)
+      love.graphics.setColor(0.25, 0.77, 1, 0.65 + 0.35 * selectionGlow)
+      love.graphics.rectangle("fill", gw - 820, top + 10, 4 + 3 * selectionGlow, 80, 2)
+      love.graphics.setColor(White)
       love.graphics.setFont(smallFont)
       love.graphics.printf(mapManager.getTitleOfIndex(i), gw - 800, scrollY + 115 + 111 * (i - 1), 700, "left")
       love.graphics.setFont(smallestFont)
