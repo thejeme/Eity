@@ -14,4 +14,7 @@ Play in your browser or download the game for Windows or Linux.
 
 ## Page assets
 
-Use `cover.png` for the project cover. The gallery contains three in-game screenshots at 1280 × 720. Start with `gameplay.png`, then add `song-select.png` and `menu.png`.
+- [itch.io cover](itch-cover.png) is a 630 × 500 crop of the title screen.
+- [Original Eity icon](eity-icon.png) is the 2792 × 2792 PNG with transparency.
+- [Abstract World gameplay](abstract-world.png), [Meteor Sightseeing song list](meteor-song-select.png), [modifiers](modifiers.png), [results](results.png), and the [title screen](menu.png) are direct 1920 × 1080 captures. The gameplay and results captures came from the same run using scripted input.
+- [Shelter gameplay](gameplay.png) and the [original song list](song-select.png) are direct 1280 × 720 captures.
