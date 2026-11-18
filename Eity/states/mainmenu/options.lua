@@ -4,7 +4,7 @@ require 'objects/button'
 Options = {}
 
 local backButton, generalButton, volumeButton, mainButton, musicButton, effectButton, slidertickButton
-local resolutionButton, vsyncButton, fpsButton, backroundDimButton
+local resolutionButton, vsyncButton, fpsButton
 local mainVolumeSlider, musicVolumeSlider, effectsVolumeSlider
 
 function Options:load()
@@ -20,9 +20,6 @@ function Options:load()
   resolutionButton = newButton(gw * 0.35, gh / 2 - 300, gw * 0.3, 50, 15, "Resolution", GrayOpacity4, White, White, "left", 15, 10)
   vsyncButton = newButton(gw * 0.35, gh / 2 - 225, gw * 0.3, 50, 15, "Enable Vsync", GrayOpacity4, White, White, "left", 15, 10)
   fpsButton = newButton(gw * 0.35, gh / 2 - 150, gw * 0.3, 50, 15, "Show FPS", GrayOpacity4, White, White, "left", 15, 10)
-  backroundDimButton = newButton(gw * 0.35, gh / 2 - 75, gw * 0.3, 50, 15, "Background dim", GrayOpacity4, White, White, "left", 15, 10)
-
-  backgroundDimSlider = newSlider(gw * 0.56, gh / 2 - 50, gw * 0.15, saveManager.settings.bgDim, 0, 1, function (v) gameManager.setBackgroundDim(v) end)
   
   mainVolumeSlider = newSlider(gw * 0.56, gh / 2 + 100, gw * 0.15, saveManager.settings.mainVolume, 0, 2, function (v) soundManager:SetMainVolume(v) end)
   musicVolumeSlider = newSlider(gw * 0.56, gh / 2 + 175, gw * 0.15, saveManager.settings.musicVolume, 0, 0.1, function (v) soundManager:SetMusicVolume(v) end)
@@ -31,7 +28,6 @@ end
 
 function Options:update(dt)
   backButton:update(dt)
-  backgroundDimSlider:update()
   mainVolumeSlider:update()
   musicVolumeSlider:update()
   effectsVolumeSlider:update()
@@ -101,7 +97,6 @@ function BackToStartScreen()
 end
 
 function DrawSliders()
-  backgroundDimSlider:draw()
   mainVolumeSlider:draw()
   musicVolumeSlider:draw()
   effectsVolumeSlider:draw()
@@ -134,7 +129,6 @@ function DrawButtons()
     love.graphics.circle('fill', gw * 0.63, gh / 2 - 125, 8, 4)
   end
   
-  backroundDimButton:draw()
   volumeButton:draw()
   mainButton:draw()
   musicButton:draw()

@@ -9,7 +9,6 @@ function saveManager:load()
     settings.isEnabledFPS = false
     settings.isEnabledVSync = false
     settings.isEnabledTicksound = false
-    settings.bgDim = 0.5
     settings.mainVolume = 1
     settings.musicVolume = 0.05
     settings.effectVolume = 0.05
@@ -44,7 +43,6 @@ function saveManager:saveSettings()
   settings.isEnabledFPS = saveManager.settings.isEnabledFPS
   settings.isEnabledVSync = saveManager.settings.isEnabledVSync
   settings.isEnabledTicksound = saveManager.settings.isEnabledTicksound
-  settings.bgDim = saveManager.settings.bgDim
   settings.mainVolume = saveManager.settings.mainVolume
   settings.musicVolume = saveManager.settings.musicVolume
   settings.effectVolume = saveManager.settings.effectVolume
