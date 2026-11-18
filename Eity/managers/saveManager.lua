@@ -22,16 +22,16 @@ function saveManager:load()
   
   
   
-  if not love.filesystem.getInfo("highscores.txt") then
-    highscores = {}
-    highscores.mapScore = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-    highscores.mapGrade = {"", "", "", "", "", "", "", "", "", ""}
-    
-    love.filesystem.write("highscores.txt", serialize(highscores))
+  local scores = {mapScore = {}, mapGrade = {}}
+  if love.filesystem.getInfo("highscores.txt") then
+    scores = assert(love.filesystem.load("highscores.txt"))()
   end
-  
-  chunk = love.filesystem.load("highscores.txt")
-  saveManager.highscores = chunk()
+
+  for index in ipairs(mapManager.getListOfMaps()) do
+    scores.mapScore[index] = scores.mapScore[index] or 0
+    scores.mapGrade[index] = scores.mapGrade[index] or ""
+  end
+  saveManager.highscores = scores
 end
 
 function saveManager:saveHighscore()

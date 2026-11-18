@@ -40,6 +40,10 @@ Create an HTML project. Upload the Web ZIP intact and mark it as playable in the
 
 Mapped gamepads use SDL's standard layout. Controllers without a mapping use the first two axes, the hat, and the common raw button positions. Actual raw button positions depend on the controller.
 
+## Charts
+
+[Generate beat maps and see the Meteor Sightseeing track credits](tools/charting.md).
+
 ## License
 
 [MIT](LICENSE)

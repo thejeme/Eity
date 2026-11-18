@@ -8,7 +8,6 @@ pressure = require "maps/The Pressure/map"
 stellaRium = require "maps/Stella-rium/map"
 virtualParadise = require "maps/Virtual Paradise/map"
 coldGreenEyes = require "maps/Cold Green Eyes/map"
---template = require "maps/Template/map"
 
 mapManager = { }
  
@@ -47,9 +46,7 @@ function mapManager.getNotesOfIndex(index)
 end
 
  
-function mapManager:load()      
-  -- (0 = none, 1 = normal, 2 = slider, 3 = bad), 448 = up, 64 = down, 192 = left, 320 = right, milliseconds to spawn
-  -- Slider length
+function mapManager:load()
   table.insert(listOfMaps, shelter)
   table.insert(listOfMaps, prayerBlue)
   table.insert(listOfMaps, virtualParadise)
@@ -59,17 +56,13 @@ function mapManager:load()
   table.insert(listOfMaps, pressure)
   table.insert(listOfMaps, freedomDive)
   table.insert(listOfMaps, highscore)
-  table.insert(listOfMaps, yumeiroParade)  
-  
-  
-  --table.insert(listOfMaps, template)
-  for i, v in ipairs(mapManager.getListOfMaps()) do
-    for i, v in ipairs(v) do
-      if (v[i][1] == 3) then
-        v[i][5] = v[i][5] + 100
-      end
-    end
-  end
+  table.insert(listOfMaps, yumeiroParade)
+
+  -- Meteor Sightseeing set in difficulty order. Keep the original score indices.
+  table.insert(listOfMaps, require("maps/Tears of Control/map"))
+  table.insert(listOfMaps, require("maps/Supreme Sign/map"))
+  table.insert(listOfMaps, require("maps/Blank Paper/map"))
+  table.insert(listOfMaps, require("maps/Abstract World/map"))
 end
 
 return mapManager

@@ -26,9 +26,9 @@ function gameManager:update(dt)
 end
 
 function gameManager:load()
+  mapManager:load()
   saveManager:load()
   modManager:load()
-  mapManager:load()
   soundManager:load() 
   scoreManager.Restart()
   gameManager.pause = false
