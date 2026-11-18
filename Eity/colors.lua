@@ -6,3 +6,10 @@ White = {1, 1, 1, 1}
 Black = {0, 0, 0, 1}
 GrayOpacity4 = {0, 0, 0, 0.4}
 GrayOpacity6 = {0, 0, 0, 0.6}
+
+DifficultyColors = {
+  Easy = {0.48, 0.93, 0.65, 1},
+  Normal = {0.47, 0.81, 1, 1},
+  Hard = {1, 0.73, 0.36, 1},
+  Insane = {0.90, 0.69, 1, 1},
+}

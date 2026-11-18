@@ -37,6 +37,15 @@ function mapList.getSelectedMapIndex()
   return songOrder[selectedRow]
 end
 
+function mapList.getSelectedSongLabel()
+  local index = mapList.getSelectedMapIndex()
+  local difficulty = mapManager.getDifficultOfIndex(index)
+  return {
+    White, mapManager.getTitleOfIndex(index) .. " - " .. mapManager.getPorterOfIndex(index) .. " ",
+    DifficultyColors[difficulty] or White, "[" .. difficulty .. "]",
+  }
+end
+
 local function selectMap(index)
   if index ~= selectedRow then
     selectedRow = index
@@ -107,8 +116,9 @@ function mapList:draw()
     love.graphics.printf(mapManager.getTitleOfIndex(mapIndex), left + 20, top + 15, width, "left")
     love.graphics.setFont(smallestFont)
     love.graphics.printf(mapManager.getPorterOfIndex(mapIndex), left + 30, top + 45, 700, "left")
-    love.graphics.setColor(Blue)
-    love.graphics.printf(mapManager.getDifficultOfIndex(mapIndex), left + 30, top + 65, 700, "left")
+    local difficulty = mapManager.getDifficultOfIndex(mapIndex)
+    love.graphics.setColor(DifficultyColors[difficulty] or White)
+    love.graphics.printf(difficulty, left + 30, top + 65, 700, "left")
     DrawGrade(mapIndex, top + 16)
   end
 end
