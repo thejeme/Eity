@@ -12,7 +12,7 @@ Easy emphasizes the main beat. Normal adds selected offbeats. Hard increases the
 
 ## Meteor Sightseeing set
 
-The four charts appear together at the end of Song Select, in ascending difficulty. Each has an original abstract background.
+Song Select groups all charts by difficulty from Easy to Insane and sorts titles alphabetically within each group. Each has an original abstract background.
 
 | In-game title | Vocal | Difficulty | Tempo | Generator options |
 | --- | --- | --- | --- | --- |
