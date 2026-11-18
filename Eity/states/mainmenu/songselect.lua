@@ -4,6 +4,7 @@ require 'objects/mapList'
 Songselect = {}
 
 local bigFont, smallFont, smallestFont
+local barOpacity = 0.8
 
 local playButton, backButton, randomButton, modsButton
 local modsHiddenButton, modsHalfSpeedButton, modsDoubleSpeedButton, modsHiddenButton, modsFlashlightButton, modsNoFailButton, modsAutoButton
@@ -53,7 +54,12 @@ end
 function Songselect:draw()
   Background()  
   if not isMods then
-    mapList:draw()    
+    local left, top = love.graphics.transformPoint(0, gh * 0.08)
+    local right, bottom = love.graphics.transformPoint(gw, gh * 0.92)
+    love.graphics.push("all")
+    love.graphics.intersectScissor(left, top, right - left, bottom - top)
+    mapList:draw()
+    love.graphics.pop()
     BottomBar()
     TopBar()
   elseif isMods then
@@ -176,7 +182,7 @@ end
 function BottomBar()
   love.graphics.setFont(smallFont)
   love.graphics.setLineWidth(3)  
-  love.graphics.setColor(0,0,0,1)
+  love.graphics.setColor(0, 0, 0, barOpacity)
   love.graphics.rectangle('fill', 0, gh * 0.92, gw, gh * 0.08)
   love.graphics.setColor(White)
   love.graphics.line(0, gh * 0.92, gw, gh * 0.92)
@@ -190,7 +196,7 @@ end
 function TopBar()
   love.graphics.setFont(smallFont)
   love.graphics.setLineWidth(3)  
-  love.graphics.setColor(0,0,0,1)
+  love.graphics.setColor(0, 0, 0, barOpacity)
   love.graphics.rectangle('fill', 0, gh * 0.0, gw, gh * 0.08)
   love.graphics.setColor(White)
   love.graphics.line(0, gh * 0.08, gw, gh * 0.08)
