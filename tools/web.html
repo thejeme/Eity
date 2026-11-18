@@ -9,21 +9,17 @@
     html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #000; color: #fff; }
     body { display: grid; place-items: center; font: 1rem system-ui, sans-serif; }
     canvas { width: min(100vw, 177.7778vh); height: min(56.25vw, 100vh); display: block; touch-action: none; outline: none; }
-    #launch { position: absolute; padding: 0.75rem 1.25rem; font: inherit; touch-action: manipulation; }
     #status { position: absolute; }
   </style>
 </head>
 <body>
   <canvas id="canvas" tabindex="0" aria-label="Eity game" oncontextmenu="return false"></canvas>
   <p id="status" role="status">Loading Eity...</p>
-  <button id="launch" type="button" hidden>Start Eity</button>
   <script>
     const canvas = document.getElementById("canvas");
     const status = document.getElementById("status");
-    const launch = document.getElementById("launch");
     let ready = false;
     function showError() {
-      launch.hidden = true;
       status.hidden = false;
       status.textContent = "Eity could not start. Reload the game to try again.";
     }
@@ -37,14 +33,10 @@
         if (remaining === 0 && !ready) {
           ready = true;
           status.hidden = true;
-          launch.hidden = false;
+          canvas.focus({preventScroll: true});
         }
       }
     };
-    launch.addEventListener("click", () => {
-      launch.hidden = true;
-      canvas.focus();
-    });
     canvas.addEventListener("pointerdown", () => canvas.focus());
     window.addEventListener("keydown", event => {
       if (document.activeElement === canvas && [" ", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
