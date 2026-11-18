@@ -67,6 +67,8 @@ function slider:update()
     local ox = x - knobX
     local oy = y - knobY
 
+    self.hovered = math.abs(ox) < self.width/2 and math.abs(oy) < self.width/2
+
     local dx = ox - self.ox
     local dy = oy - self.oy
 
@@ -77,7 +79,7 @@ function slider:update()
             elseif self.orientation == 'vertical' then
                 self.value = self.value - dy / self.length
             end
-        elseif (x > knobX - self.width/2 and x < knobX + self.width/2 and y > knobY - self.width/2 and y < knobY + self.width/2) and not self.wasDown then
+        elseif self.hovered and not self.wasDown then
             self.ox = ox
             self.oy = oy
             self.grabbed = true
@@ -124,6 +126,15 @@ function slider:draw()
         knobY = self.y + self.length/2 - self.length * self.value
     end
 
+    if self.hovered or self.grabbed then
+        love.graphics.setColor(1, 1, 1, 0.32)
+        if self.knob == 'rectangle' then
+            love.graphics.rectangle('fill', knobX - self.width/2 - 5, knobY - self.width/2 - 5, self.width + 10, self.width + 10)
+        else
+            love.graphics.circle('fill', knobX, knobY, self.width/2 + 7, 4)
+        end
+        love.graphics.setColor(1, 1, 1, 1)
+    end
     if self.knob == 'rectangle' then
         love.graphics.rectangle('fill', knobX - self.width/2, knobY - self.width/2, self.width, self.width)
     elseif self.knob == 'circle' then

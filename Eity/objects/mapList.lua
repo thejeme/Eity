@@ -59,40 +59,43 @@ function mapList:update(dt)
   selectionGlow = math.max(0, selectionGlow - dt * 4)
 end
 
+local function rowBounds(index)
+  local left = index == selectedMap and gw - 820 or gw - 780
+  return left, scrollY + 100 + 111 * (index - 1), gw - 120 - left
+end
+
+local function rowAt(x, y)
+  if y < gh * 0.08 or y >= gh * 0.92 then return end
+  local index = math.floor((y - scrollY - 100) / 111) + 1
+  if not maplist[index] then return end
+  local left, top, width = rowBounds(index)
+  if x >= left and x < left + width and y < top + 100 then return index end
+end
+
 function mapList:draw()
-  for i, v in ipairs(maplist) do
-    if (i == selectedMap) then
-      love.graphics.setColor(0.1, 0.1, 0.1, 0.9)
-      love.graphics.rectangle('fill', gw - 820, scrollY + 100 + 111 * (i - 1), 700, 100, 10)
-      love.graphics.setColor(White)
-      love.graphics.rectangle('line', gw - 820, scrollY + 100 + 111 * (i - 1), 700, 100, 10)
-      local top = scrollY + 100 + 111 * (i - 1)
-      love.graphics.setColor(0.25, 0.77, 1, 0.65 + 0.35 * selectionGlow)
-      love.graphics.rectangle("fill", gw - 820, top + 10, 4 + 3 * selectionGlow, 80, 2)
-      love.graphics.setColor(White)
-      love.graphics.setFont(smallFont)
-      love.graphics.printf(mapManager.getTitleOfIndex(i), gw - 800, scrollY + 115 + 111 * (i - 1), 700, "left")
-      love.graphics.setFont(smallestFont)
-      love.graphics.setColor(White)
-      love.graphics.printf(mapManager.getPorterOfIndex(i), gw - 790, scrollY + 145 + 111 * (i - 1), 700, "left")
-      love.graphics.setColor(Blue)
-      love.graphics.printf(mapManager.getDifficultOfIndex(i), gw - 790, scrollY + 165 + 111 * (i - 1), 700, "left")  
-      DrawGrade(i)
+  local hovered = rowAt(mx, my)
+  for i in ipairs(maplist) do
+    local left, top, width = rowBounds(i)
+    if i == hovered then
+      love.graphics.setColor(0.24, 0.29, 0.32, 0.95)
     else
       love.graphics.setColor(0.1, 0.1, 0.1, 0.9)
-      love.graphics.rectangle('fill', gw - 780, scrollY + 100 + 111 * (i - 1), 660, 100, 10)
-      love.graphics.setColor(White)
-      love.graphics.rectangle('line', gw - 780, scrollY + 100 + 111 * (i - 1), 660, 100, 10)
-      love.graphics.setFont(smallFont)
-      love.graphics.printf(mapManager.getTitleOfIndex(i), gw - 760, scrollY + 115 + 111 * (i - 1), 660, "left")
-      love.graphics.setFont(smallestFont)
-      love.graphics.setColor(White)
-      love.graphics.printf(mapManager.getPorterOfIndex(i), gw - 750, scrollY + 145 + 111 * (i - 1), 700, "left")
-      love.graphics.setColor(Blue)
-      love.graphics.printf(mapManager.getDifficultOfIndex(i), gw - 750, scrollY + 165 + 111 * (i - 1), 700, "left")
-      
-      DrawGrade(i)
     end
+    love.graphics.rectangle('fill', left, top, width, 100, 10)
+    love.graphics.setColor(White)
+    love.graphics.rectangle('line', left, top, width, 100, 10)
+    if i == selectedMap then
+      love.graphics.setColor(0.25, 0.77, 1, 0.65 + 0.35 * selectionGlow)
+      love.graphics.rectangle("fill", left, top + 10, 4 + 3 * selectionGlow, 80, 2)
+    end
+    love.graphics.setColor(White)
+    love.graphics.setFont(smallFont)
+    love.graphics.printf(mapManager.getTitleOfIndex(i), left + 20, top + 15, width, "left")
+    love.graphics.setFont(smallestFont)
+    love.graphics.printf(mapManager.getPorterOfIndex(i), left + 30, top + 45, 700, "left")
+    love.graphics.setColor(Blue)
+    love.graphics.printf(mapManager.getDifficultOfIndex(i), left + 30, top + 65, 700, "left")
+    DrawGrade(i)
   end
 end
 
@@ -108,15 +111,9 @@ function DrawGrade(i)
 end
 
 function mapList:mousepressed(x, y, button)
-  if button ~= 1 or y < gh * 0.08 or y >= gh * 0.92 then return end
-  for index in ipairs(maplist) do
-    local left = index == selectedMap and gw - 820 or gw - 780
-    local top = scrollY + 100 + 111 * (index - 1)
-    if x >= left and x < gw - 120 and y >= top and y < top + 100 then
-      selectMap(index)
-      return
-    end
-  end
+  if button ~= 1 then return end
+  local index = rowAt(x, y)
+  if index then selectMap(index) end
 end
 
 function mapList.mapListUp()

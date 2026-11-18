@@ -39,45 +39,47 @@ function Options:draw()
   DrawSliders()
 end
 
+local function onResolution(x, y)
+  return x > gw * 0.51 and x < gw * 0.51 + 200 and y > gh / 2 - 290 and y < gh / 2 - 260
+end
+
+local function onToggle(x, y, centerY)
+  return math.abs(x - gw * 0.63) < 16 and math.abs(y - centerY) < 16
+end
+
 function Options:mousepressed(x, y, button)
   backButton:mousepressed(x, y, button)
   if menustate ~= "Options" then return end
 
-  local isMouseOnResolution = x > gw * 0.51 and x < gw * 0.51 + 200 and y > gh / 2 - 290 and y < gh / 2 - 260
-  local onToggle = math.abs(x - gw * 0.63) < 16
-  local isMouseOnEnableVSync = onToggle and math.abs(y - (gh / 2 - 200)) < 16
-  local isMouseOnEnableFPS = onToggle and math.abs(y - (gh / 2 - 125)) < 16
-  local isMouseOnEnableTicksound = onToggle and math.abs(y - (gh / 2 + 325)) < 16
-
-  if isMouseOnEnableFPS and button == 1 then
+  if onToggle(x, y, gh / 2 - 125) and button == 1 then
     soundManager.playSoundEffect(soundManager.buttonHitsrc)
     if saveManager.settings.isEnabledFPS then
       saveManager.settings.isEnabledFPS = false
     else
       saveManager.settings.isEnabledFPS = true
     end
-  elseif isMouseOnEnableVSync and button == 1 then
+  elseif onToggle(x, y, gh / 2 - 200) and button == 1 then
     soundManager.playSoundEffect(soundManager.buttonHitsrc)
     if saveManager.settings.isEnabledVSync then
       saveManager.settings.isEnabledVSync = false
     else
       saveManager.settings.isEnabledVSync = true
     end
-  elseif isMouseOnEnableTicksound and button == 1 then
+  elseif onToggle(x, y, gh / 2 + 325) and button == 1 then
     soundManager.playSoundEffect(soundManager.buttonHitsrc)
     if saveManager.settings.isEnabledTicksound then
       saveManager.settings.isEnabledTicksound = false
     else
       saveManager.settings.isEnabledTicksound = true
     end
-  elseif isMouseOnResolution and button == 1 then
+  elseif onResolution(x, y) and button == 1 then
     changedResolution = true
     soundManager.playSoundEffect(soundManager.buttonHitsrc)
     saveManager.settings.resolutionIndex = saveManager.settings.resolutionIndex - 1
     if saveManager.settings.resolutionIndex <= 0 then
       saveManager.settings.resolutionIndex = #resolutionList
     end
-  elseif isMouseOnResolution and button == 2 then
+  elseif onResolution(x, y) and button == 2 then
     changedResolution = true
     soundManager.playSoundEffect(soundManager.buttonHitsrc)
     saveManager.settings.resolutionIndex = saveManager.settings.resolutionIndex + 1
@@ -102,6 +104,21 @@ function DrawSliders()
   effectsVolumeSlider:draw()
 end
 
+local function drawToggle(y, enabled)
+  local x = gw * 0.63
+  if onToggle(mx, my, y) then
+    love.graphics.setColor(1, 1, 1, 0.28)
+    love.graphics.circle('fill', x, y, 20, 4)
+  end
+  love.graphics.setColor(White)
+  love.graphics.circle('line', x, y, 16, 4)
+  if enabled then
+    love.graphics.setColor(Green)
+    love.graphics.circle('fill', x, y, 8, 4)
+  end
+  love.graphics.setColor(White)
+end
+
 function DrawButtons()  
   love.graphics.setFont(buttonSmallFont)
   love.graphics.setLineWidth(6)   
@@ -111,35 +128,27 @@ function DrawButtons()
   love.graphics.setColor(Green)
   love.graphics.rectangle("fill", gw * 0.51, gh / 2 - 290, 200, 30, 10)
   love.graphics.setColor(White)
+  if onResolution(mx, my) then
+    love.graphics.setColor(1, 1, 1, 0.22)
+    love.graphics.rectangle("fill", gw * 0.51, gh / 2 - 290, 200, 30, 10)
+    love.graphics.setColor(White)
+  end
   love.graphics.setLineWidth(5)
   love.graphics.rectangle("line", gw * 0.51, gh / 2 - 290, 200, 30, 10)
   love.graphics.printf(resolutionList[saveManager.settings.resolutionIndex][1] .. " x " .. resolutionList[saveManager.settings.resolutionIndex][2], gw * 0.51, gh / 2 - 290, 200, "center")
   
   vsyncButton:draw()
-  love.graphics.circle('line', gw * 0.63, gh / 2 - 200, 16, 4)
-  if saveManager.settings.isEnabledVSync then
-    love.graphics.setColor(Green)
-    love.graphics.circle('fill', gw * 0.63, gh / 2 - 200, 8, 4)
-  end
+  drawToggle(gh / 2 - 200, saveManager.settings.isEnabledVSync)
       
   fpsButton:draw()
-  love.graphics.circle('line', gw * 0.63, gh / 2 - 125, 16, 4)
-  if saveManager.settings.isEnabledFPS then
-    love.graphics.setColor(Green)
-    love.graphics.circle('fill', gw * 0.63, gh / 2 - 125, 8, 4)
-  end
+  drawToggle(gh / 2 - 125, saveManager.settings.isEnabledFPS)
   
   volumeButton:draw()
   mainButton:draw()
   musicButton:draw()
   effectButton:draw()
   slidertickButton:draw()
-  love.graphics.circle('line', gw * 0.63, gh / 2 + 325, 16, 4)
-  if saveManager.settings.isEnabledTicksound then
-    love.graphics.setColor(Green)
-    love.graphics.circle('fill', gw * 0.63, gh / 2 + 325, 8, 4)
-    love.graphics.setColor(1, 1, 1, 1)
-  end
+  drawToggle(gh / 2 + 325, saveManager.settings.isEnabledTicksound)
   --[[
   love.graphics.setColor(Colors.getGreenColor())
   love.graphics.rectangle('fill', gw * 0.35, gh / 2 - 75, gw * 0.3, 50, 15)

@@ -1,8 +1,6 @@
 local button = {}
 button.__index = button
 
-local hoverButtonOver
-
 function newButton(x, y, width, height, corner, text, inlineColor, normalOutlineColor, highlightOutlineColor, textAlign, ox, oy, func, isToggle)
   local b = {}
   b.x = x
@@ -24,30 +22,24 @@ function newButton(x, y, width, height, corner, text, inlineColor, normalOutline
   return setmetatable(b, button)
 end
 
-function button:update(dt)                                      
-  if self.isMouseOnButton then
-    if not self.isToggle then
-      self.activeOutlineColor = self.highlightOutlineColor
-    end
-    if not self.hoverButtonOver then
-      self.hoverButtonOver = true
-      soundManager.playSoundEffect(soundManager.buttonOversrc)
-    end
-  else
-    self.hoverButtonOver = false
-    if not self.isToggle then
-      self.activeOutlineColor = self.normalOutlineColor
-    end
+function button:update(dt)
+  local hovered = self.func and self:contains(mx, my)
+  if hovered and not self.hovered then
+    soundManager.playSoundEffect(soundManager.buttonOversrc)
   end
-  
+  self.hovered = hovered
 end
 
-function button:draw()  
-  self.isMouseOnButton = self:contains(mx, my)
-                            
+function button:draw()
   love.graphics.setColor(self.inlineColor)
   love.graphics.rectangle('fill', self.x, self.y, self.width, self.height, self.corner)
-  love.graphics.setColor(self.activeOutlineColor)
+  local outline = self.activeOutlineColor
+  if self.func and self:contains(mx, my) then
+    love.graphics.setColor(1, 1, 1, 0.22)
+    love.graphics.rectangle('fill', self.x, self.y, self.width, self.height, self.corner)
+    if not self.isToggle then outline = self.highlightOutlineColor end
+  end
+  love.graphics.setColor(outline)
   love.graphics.rectangle('line', self.x, self.y, self.width, self.height, self.corner)
   love.graphics.setColor(1, 1, 1, 1)
   love.graphics.printf(self.text, self.x + self.ox, self.y + self.oy, self.width, self.textAlign)
