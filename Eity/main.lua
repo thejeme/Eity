@@ -37,6 +37,9 @@ function love.update(dt)
   input.updatePointer()
   gameManager:update(dt)
   stateManager:update(dt)
+  local browsing = stateManager.GameState == "Mainmenu" and menustate == "Songselect" and not isMods
+  local previewIndex = browsing and love.window.hasFocus() and mapList.getSelectedMapIndex() or nil
+  soundManager.updatePreview(previewIndex, dt)
   simpleScale.updateVSync()
 
   if discordRPC then

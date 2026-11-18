@@ -40,6 +40,8 @@ Create an HTML project. Upload the Web ZIP intact and mark it as playable in the
 
 Mapped gamepads use SDL's standard layout. Controllers without a mapping use the first two axes, the hat, and the common raw button positions. Actual raw button positions depend on the controller.
 
+Song Select plays a 12-second excerpt after the selection settles. Switching away during a song pauses playback. Resume with the existing pause controls. On Results, press R or Enter, the left face button, or tap Retry to replay with the same mods. The score difference compares your run with your previous best for that map.
+
 ## Charts
 
 [Generate beat maps and see the Meteor Sightseeing track credits](tools/charting.md).

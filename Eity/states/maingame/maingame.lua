@@ -14,30 +14,17 @@ function Maingame:load()
   mapNotes = {}
 end
 
-function Maingame:update(dt)
-  maingame_UI:update(dt)
-  
-  if modManager.isAuto then
-    auto.ApplyMod(mapNotes)
-  end
-  
-  if gameManager.pause or gameManager.isFailed then
-     mapSong:pause() 
-     love.mouse.setVisible(true) 
-   end
-  
-  if not gameManager.pause and not gameManager.isFailed then
-    love.mouse.setVisible(false)
-    feedback.update(dt)
-    player:update(dt)
-    mapSong:setPitch(modManager.getSpeed())
-    mapSong:play()
-    gameManager.gametime = gameManager.gametime + dt * modManager.getSpeed()
-    
+-- Advance judgments on a fixed grid in song seconds, independent of render FPS.
+local step = 1 / 240
+
+local function advanceChart(target, speedMultiplier)
+  while gameManager.gametime + step <= target do
+    gameManager.gametime = gameManager.gametime + step
+    if modManager.isAuto then auto.ApplyMod(mapNotes) end
     while mapNotes[nextNote] and (mapNotes[nextNote][5] - 400) * 0.001 < gameManager.gametime do
       local note = mapNotes[nextNote]
       local lane = math.ceil(note[2] * 4 / 512)
-      local speed = note[3] * modManager.getSpeed()
+      local speed = note[3] * speedMultiplier
       if note[4] == 0 then
         createArrow(note[1], lane, speed)
       else
@@ -45,10 +32,34 @@ function Maingame:update(dt)
       end
       nextNote = nextNote + 1
     end
+    Arrow:update(step / speedMultiplier)
+    Slider:update(step / speedMultiplier)
+  end
+end
 
-    Arrow:update(dt)
-    Slider:update(dt)
-    
+function Maingame:update(dt)
+  maingame_UI:update(dt)
+  if gameManager.pause or gameManager.isFailed then
+    mapSong:pause()
+    love.mouse.setVisible(true)
+    return
+  end
+
+  love.mouse.setVisible(false)
+  feedback.update(dt)
+  player:update(dt)
+  local speedMultiplier = modManager.getSpeed()
+  local target
+  if mapSong:isPlaying() then
+    target = mapSong:tell("seconds")
+  else
+    -- Some charts have a tail after the recording ends. Never restart the music here.
+    gameManager.audioEnded = true
+    gameManager.tailTime = (gameManager.tailTime or gameManager.gametime) + dt * speedMultiplier
+    target = gameManager.tailTime
+  end
+  advanceChart(target, speedMultiplier)
+
   if #mapNotes < scoreManager.destroyedArrows + 1 then
     if endTime < 2 then          
       endTime = endTime + dt * modManager.getSpeed()
@@ -59,22 +70,22 @@ function Maingame:update(dt)
       endTime = 0
       love.mouse.setVisible(true)
       stateManager.GameState = "Rankingscreen"
-      if (saveManager.highscores.mapScore[mapList.getSelectedMapIndex()] < scoreManager.score) then
+      Rankingscreen.previousBest = saveManager.highscores.mapScore[mapList.getSelectedMapIndex()]
+      if Rankingscreen.previousBest < scoreManager.score then
         scoreManager.setHighScore()
       end
     end
   end
     
     
-    if modManager.isNoFail or modManager.isAuto then
-      gameManager.health = 100
-      xbar = gw * 0.35
-    end
-    if modManager.isHidden then
+  if modManager.isNoFail or modManager.isAuto then
+    gameManager.health = 100
+    xbar = gw * 0.35
+  end
+  if modManager.isHidden then
     hidden.ApplyMod(dt)
-    elseif modManager.isFlashlight then
-      flashlight.ApplyMod(dt)
-    end
+  elseif modManager.isFlashlight then
+    flashlight.ApplyMod(dt)
   end
 end
 

@@ -84,7 +84,15 @@ function love.focus(focused)
     touch = nil
     touchPointerDown = false
     stickDirections = {}
+    soundManager.stopPreview()
+    if stateManager.GameState == "Maingame" and not gameManager.pause and not gameManager.isFailed then
+      gameManager.Pause()
+    end
   end
+end
+
+function love.visible(visible)
+  if not visible then love.focus(false) end
 end
 
 function love.gamepadpressed(joystick, button)

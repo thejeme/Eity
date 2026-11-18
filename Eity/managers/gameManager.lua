@@ -41,6 +41,11 @@ end
 
 function gameManager.Pause()
   gameManager.pause = not gameManager.pause
+  if gameManager.pause then
+    mapSong:pause()
+  elseif not gameManager.audioEnded then
+    mapSong:play()
+  end
 end
 
 function gameManager:drawBackground()
@@ -59,17 +64,23 @@ end
 
 
 function gameManager.RestartNewMap()
+  soundManager.stopPreview()
+  soundManager.mainmenusrc:stop()
   if mapSong ~= nil then
     mapSong:stop()
   end
   mapSong = gameManager:setSong()
   mapSong:setVolume(saveManager.settings.musicVolume)  
   gameManager.Restart()
-  stateManager.GameState = "Maingame"
 end
 
 function gameManager.Restart()  
-  soundManager:Restart()
+  mapSong:stop()
+  mapSong:setPitch(modManager.getSpeed())
+  mapSong:play()
+  gameManager.audioEnded = false
+  gameManager.tailTime = nil
+  stateManager.GameState = "Maingame"
   scoreManager.Restart()
   mapNotes = mapManager.getNotesOfIndex(mapList.getSelectedMapIndex())
   player:resetPosition()

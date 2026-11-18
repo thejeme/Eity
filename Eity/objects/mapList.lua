@@ -32,6 +32,7 @@ local function selectMap(index)
 end
 
 function mapList.scroll(delta)
+  if delta ~= 0 then soundManager.stopPreview() end
   local minScroll = math.min(0, gh * 0.92 - (100 + 111 * (#maplist - 1) + 100))
   scrollY = math.max(minScroll, math.min(0, scrollY + delta))
 end

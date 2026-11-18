@@ -5,9 +5,13 @@ local smallFont
 local titleFont
 local descFont
 local rankingFont
-local isMouseOnBack
+local backButton, retryButton
 
 function Rankingscreen:load()
+  backButton = newButton(50, gh * 0.9, 200, 75, 10, "Back", GrayOpacity6, White, Blue,
+    "center", 0, 10, function() stateManager.GameState = "Mainmenu" end)
+  retryButton = newButton(280, gh * 0.9, 200, 75, 10, "Retry", GrayOpacity6, White, Green,
+    "center", 0, 10, gameManager.Restart)
   rankingFont = love.graphics.newFont("assets/roboto.ttf", 556)
   bigFont = love.graphics.newFont("assets/roboto.ttf", 78)
   smallFont = love.graphics.newFont("assets/roboto.ttf", 48)
@@ -16,23 +20,16 @@ function Rankingscreen:load()
 end
 
 function Rankingscreen:gamepadpressed(joystick, button)
-  if button == "a" then
+  if button == "x" then
+    gameManager.Restart()
+  elseif button == "a" then
     stateManager.GameState = "Mainmenu"
   end
 end
 
 function Rankingscreen:update(dt)
-  isMouseOnBack = mx > 50 and mx < 250 and
-                  my > gh * 0.9 and my < gh * 0.9 + 75
-                          
-  if isMouseOnBack then
-    if not hoverButtonOver then
-      hoverButtonOver = true
-      soundManager.playSoundEffect(soundManager.buttonOversrc)
-    end
-  else
-    hoverButtonOver = false
-  end
+  backButton:update(dt)
+  retryButton:update(dt)
 end
 
 function Rankingscreen:draw()
@@ -44,14 +41,14 @@ function Rankingscreen:draw()
 end
 
 function Rankingscreen:mousepressed(x, y,button)
-  if button == 1 and x > 50 and x < 250 and y > gh * 0.9 and y < gh * 0.9 + 75 then
-    soundManager.playSoundEffect(soundManager.buttonHitsrc)
-    stateManager.GameState = "Mainmenu"
-  end
+  backButton:mousepressed(x, y, button)
+  retryButton:mousepressed(x, y, button)
 end
 
 function Rankingscreen:keypressed(key)
-  if key == "escape" then
+  if key == "r" or key == "return" then
+    gameManager.Restart()
+  elseif key == "escape" then
     stateManager.GameState = "Mainmenu"
   end
 end
@@ -118,13 +115,22 @@ function Rankingscreen:Buttons()
   love.graphics.setLineWidth(6)
   
   love.graphics.setColor(0, 0, 0, 0.6)
-  love.graphics.rectangle('fill', 50, gh * 0.9, 200, 75, 10)
-  love.graphics.setColor(1, 1, 1, 1)
-  love.graphics.rectangle('line', 50, gh * 0.9, 200, 75, 10)
-  love.graphics.setColor(1, 1, 1, 1)
-  love.graphics.printf("Back", 50, gh * 0.9 + 10, 200, "center")
-
-
+  backButton:draw()
+  retryButton:draw()
+  local delta = scoreManager.score - self.previousBest
+  local label
+  if delta > 0 then
+    label = string.format("New personal best   +%d", delta)
+  elseif self.previousBest == 0 then
+    label = "No personal best yet"
+  elseif delta == 0 then
+    label = "Matched personal best"
+  else
+    label = string.format("%d below personal best", -delta)
+  end
+  love.graphics.setFont(titleFont)
+  love.graphics.setColor(delta > 0 and Green or White)
+  love.graphics.printf(label, 50, gh * 0.71, gw * 0.5, "center")
 end
 
 function Rankingscreen:Blues()
