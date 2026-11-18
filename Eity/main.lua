@@ -4,89 +4,75 @@ require 'globals'
 require 'colors'
 require 'lib/simpleScale'
 
-local discordRPC = require 'lib/discordRPC'
-local appId = require 'applicationId'
-
-local joysticks = love.joystick.getJoysticks()
-joystick = joysticks[1]
+local osName = love.system.getOS()
+isWeb = osName == "Web" or osName == "Emscripten"
+local input = require 'managers/input'
+local discordRPC
+local startTime
+local nextPresenceUpdate = 0
 
 function love.load()
   gameManager:load()
-  stateManager:load()
-  love.graphics.setBackgroundColor(0.1, 0.1, 0.1, 1)
-  simpleScale.setWindow(gw, gh, resolutionList[saveManager.settings.resolutionIndex][1], resolutionList[saveManager.settings.resolutionIndex][2])
-  discordRPC.initialize(appId, true)
-  now = os.time(os.date("*t"))
-  detailsNow = "In Mainmenu"
-  stateNow = ""
-  nextPresenceUpdate = 0
-end
-
-function discordApplyPresence()
-  if stateManager.GameState == "Maingame" then
-    detailsNow = mapManager.getTitleOfIndex(mapList.getSelectedMapIndex())
-    stateNow = "By " .. mapManager.getPorterOfIndex(mapList.getSelectedMapIndex())
-  else
-    detailsNow = "In Mainmenu"
-    stateNow = ""
+  if not resolutionList[saveManager.settings.resolutionIndex] then
+    saveManager.settings.resolutionIndex = 5
   end
-
-  presence = {
-    largeImageKey = "eity_icon",
-    largeImageText = "Eity v1.0.0",
-    details = detailsNow,
-    state = stateNow,
-    startTimestamp = now,
-  }
-
-  return presence
+  simpleScale.applyResolution()
+  stateManager:load()
+  love.graphics.setBackgroundColor(0, 0, 0, 1)
+  if osName == "Windows" then
+    local ok, rpc = pcall(require, 'lib/discordRPC')
+    if ok then
+      discordRPC = rpc
+      discordRPC.initialize(require('applicationId'), true)
+      startTime = os.time()
+    end
+  end
 end
 
-function love.gamepadpressed(joystick, button)
-  stateManager:gamepadpressed(joystick, button)
+function love.resize(width, height)
+  simpleScale.resizeUpdate(width, height)
 end
 
 function love.update(dt)
-  collectgarbage()
-  mx = love.mouse.getX() / simpleScale.getScale()
-  my = love.mouse.getY() / simpleScale.getScale()
-  scoreManager:update(dt)
+  input.updatePointer()
   gameManager:update(dt)
   stateManager:update(dt)
+  simpleScale.updateVSync()
 
-  if saveManager.settings.isEnabledVSync then
-    love.window.setVSync(1)
-  else
-    love.window.setVSync(0)
+  if discordRPC then
+    if nextPresenceUpdate < love.timer.getTime() then
+      local details, state = "In Mainmenu", ""
+      if stateManager.GameState == "Maingame" then
+        local index = mapList.getSelectedMapIndex()
+        details = mapManager.getTitleOfIndex(index)
+        state = "By " .. mapManager.getPorterOfIndex(index)
+      end
+      discordRPC.updatePresence({
+        largeImageKey = "eity_icon",
+        largeImageText = "Eity",
+        details = details,
+        state = state,
+        startTimestamp = startTime,
+      })
+      nextPresenceUpdate = love.timer.getTime() + 2
+    end
+    discordRPC.runCallbacks()
   end
-
-  if nextPresenceUpdate < love.timer.getTime() then
-      discordRPC.updatePresence(discordApplyPresence())
-      nextPresenceUpdate = love.timer.getTime() + 2.0
-  end
-  discordRPC.runCallbacks()
-
-
 end
 
-
 function love.draw()
-	simpleScale.set()
-    stateManager:draw()
-    if saveManager.settings.isEnabledFPS then
-      love.graphics.setFont(defaultFont)
-      love.graphics.setColor(1, 1, 1, 1)
-      love.graphics.printf("FPS " .. love.timer.getFPS(), 0, gh - 12, gw, "right")
-    end
-	simpleScale.unSet()
+  simpleScale.set()
+  stateManager:draw()
+  if saveManager.settings.isEnabledFPS then
+    love.graphics.setFont(defaultFont)
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.printf("FPS " .. love.timer.getFPS(), 0, gh - 12, gw, "right")
+  end
+  simpleScale.unSet()
 end
 
 function love.quit()
-  discordRPC.shutdown()
-end
-
-function love.mousepressed(x, y, button)
-  stateManager:mousepressed(x, y, button)
+  if discordRPC then discordRPC.shutdown() end
 end
 
 function love.keypressed(key)

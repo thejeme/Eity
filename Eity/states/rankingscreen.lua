@@ -44,7 +44,7 @@ function Rankingscreen:draw()
 end
 
 function Rankingscreen:mousepressed(x, y,button)
-  if isMouseOnBack and button == 1 then
+  if button == 1 and x > 50 and x < 250 and y > gh * 0.9 and y < gh * 0.9 + 75 then
     soundManager.playSoundEffect(soundManager.buttonHitsrc)
     stateManager.GameState = "Mainmenu"
   end
@@ -58,7 +58,7 @@ end
 
 function Rankingscreen.Background()
   love.graphics.push()
-  love.graphics.draw(img, 0, 0, 0, scaleX, scaleY)
+  gameManager:drawBackground()
   love.graphics.setColor(0.3, 0.3, 0.3, gameManager.backgroundDim)
   love.graphics.rectangle('fill', 0, 0, gw, gh)
   love.graphics.pop()

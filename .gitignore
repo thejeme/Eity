@@ -1,6 +1,10 @@
 # Compiled Lua sources
 luac.out
 
+# Local release builds and runtime cache
+/dist/
+/.build/
+
 *.osu
 
 # luarocks build files

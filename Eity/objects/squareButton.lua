@@ -19,8 +19,7 @@ function newSquareButton(x, y, radius, text, inlineColor, outlineColor, ox, oy, 
 end
 
 function squareButton:update(dt)                
-  self.isMouseOnButton = mx > (self.x - self.radius * 0.81) and mx < (self.x + self.radius * 2 * 0.39) and
-                          my > (self.y - self.radius * 0.81) and my < (self.y + self.radius * 2 * 0.39)
+  self.isMouseOnButton = self:contains(mx, my)
                                                                 
   if self.isMouseOnButton then
     self.scale = self.scale + 220 * dt
@@ -47,8 +46,12 @@ function squareButton:draw()
   love.graphics.printf(self.text, self.x - self.radius + self.ox, self.y + self.oy, self.radius * 2, "center")
 end
 
+function squareButton:contains(x, y)
+  return math.abs(x - self.x) + math.abs(y - self.y) <= self.radius + self.scale + 28
+end
+
 function squareButton:mousepressed(x, y, button)                          
-  if self.isMouseOnButton and button == 1 then
+  if self.func and button == 1 and self:contains(x, y) then
     self.func()
     soundManager.playSoundEffect(soundManager.buttonHitsrc)
   end

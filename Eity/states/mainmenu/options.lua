@@ -3,8 +3,6 @@ require 'objects/button'
 
 Options = {}
 
-local isMouseOnEnableFPS, isMouseOnEnableVSync
-
 local backButton, generalButton, volumeButton, mainButton, musicButton, effectButton, slidertickButton
 local resolutionButton, vsyncButton, fpsButton, backroundDimButton
 local mainVolumeSlider, musicVolumeSlider, effectsVolumeSlider
@@ -38,18 +36,6 @@ function Options:update(dt)
   musicVolumeSlider:update()
   effectsVolumeSlider:update()
                 
-  isMouseOnResolution = mx > gw * 0.51 and mx < gw * 0.51 + 200 and
-                          my > gh / 2 - 290 and my < gh / 2 - 290 + 30  
-                      
-  isMouseOnEnableVSync = mx > gw * 0.63 - 16 and mx < gw * 0.63 + 16 and
-                          my > gh / 2 - 200 - 16 and my < gh / 2 - 200 + 16   
-                          
-  isMouseOnEnableFPS = mx > gw * 0.63 - 16 and mx < gw * 0.63 + 16 and
-                          my > gh / 2 - 125 - 16 and my < gh / 2 - 125 + 16   
-                          
-  isMouseOnEnableTicksound = mx > gw * 0.63 - 16 and mx < gw * 0.63 + 16 and
-                          my > gh / 2 + 325 - 16 and my < gh / 2 + 325 + 16   
-                                                            
 end
 
 function Options:draw()
@@ -57,8 +43,16 @@ function Options:draw()
   DrawSliders()
 end
 
-function Options:mousepressed(x, y,button)     
-  backButton:mousepressed(x, y, button)              
+function Options:mousepressed(x, y, button)
+  backButton:mousepressed(x, y, button)
+  if menustate ~= "Options" then return end
+
+  local isMouseOnResolution = x > gw * 0.51 and x < gw * 0.51 + 200 and y > gh / 2 - 290 and y < gh / 2 - 260
+  local onToggle = math.abs(x - gw * 0.63) < 16
+  local isMouseOnEnableVSync = onToggle and math.abs(y - (gh / 2 - 200)) < 16
+  local isMouseOnEnableFPS = onToggle and math.abs(y - (gh / 2 - 125)) < 16
+  local isMouseOnEnableTicksound = onToggle and math.abs(y - (gh / 2 + 325)) < 16
+
   if isMouseOnEnableFPS and button == 1 then
     soundManager.playSoundEffect(soundManager.buttonHitsrc)
     if saveManager.settings.isEnabledFPS then
@@ -102,7 +96,7 @@ function BackToStartScreen()
   menustate = "Startmenu"
   if (changedResolution) then
     changedResolution = false
-    simpleScale.updateWindow(resolutionList[saveManager.settings.resolutionIndex][1], resolutionList[saveManager.settings.resolutionIndex][2])
+    simpleScale.applyResolution()
   end
 end
 

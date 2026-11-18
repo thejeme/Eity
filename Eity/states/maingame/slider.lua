@@ -279,6 +279,8 @@ function Slider:update(dt)
   end
 end
 
+end
+
 function Slider:draw()
   for i, v in ipairs(listOfSliders) do
   if (v.direction == 4) then
@@ -471,6 +473,5 @@ function Slider:draw()
       end
     end
   end
-end
 
 return Slider

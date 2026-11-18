@@ -43,8 +43,7 @@ function button:update(dt)
 end
 
 function button:draw()  
-  self.isMouseOnButton = mx > self.x and mx < self.x + self.width and
-                          my > self.y and my < self.y + self.height   
+  self.isMouseOnButton = self:contains(mx, my)
                             
   love.graphics.setColor(self.inlineColor)
   love.graphics.rectangle('fill', self.x, self.y, self.width, self.height, self.corner)
@@ -54,8 +53,12 @@ function button:draw()
   love.graphics.printf(self.text, self.x + self.ox, self.y + self.oy, self.width, self.textAlign)
 end
 
+function button:contains(x, y)
+  return x >= self.x and x < self.x + self.width and y >= self.y and y < self.y + self.height
+end
+
 function button:mousepressed(x, y, button)
-  if self.isMouseOnButton and button == 1 then
+  if self.func and button == 1 and self:contains(x, y) then
     self.func()
     soundManager.playSoundEffect(soundManager.buttonHitsrc)
   end

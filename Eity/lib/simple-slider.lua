@@ -43,7 +43,7 @@ function newSlider(x, y, length, value, min, max, setter, style)
     s.knob = p.knob or 'circle'
 
     s.grabbed = false
-    s.wasDown = true
+    s.wasDown = false
     s.ox = 0
     s.oy = 0
 
@@ -53,7 +53,7 @@ end
 function slider:update()
     local x = mx
     local y = my
-    local down = love.mouse.isDown(1)
+    local down = love.mouse.isDown(1) or touchPointerDown
 
 
     local knobX = self.x

@@ -16,7 +16,7 @@ function maingame_UI:load()
   pausedButton = newSquareButton(gw / 2 - 270, gh / 2, 220, "Paused", Blue, White, 0, -50)
   
   restartButton = newSquareButton(gw / 2 + 250, gh / 2, 120, "Restart", Purple, White, 0, -25, function() gameManager.Restart() end)
-  quitButton = newSquareButton(gw / 2 + 50, gh / 2 + 200, 120, "Quit", Red, White, 0, -25, function() stateManager.GameState = "Mainmenu" end)  
+  quitButton = newSquareButton(gw / 2 + 50, gh / 2 + 200, 120, "Quit", Red, White, 0, -25, gameManager.ReturnToMenu)
   continueButton = newSquareButton(gw / 2 + 50, gh / 2 - 200, 120, "Continue", Green, White, 0, -25, function() gameManager.Pause() end)
 end
 

@@ -40,8 +40,19 @@ function gameManager:load()
   endTime = 0
 end
 
+function gameManager.ReturnToMenu()
+  mapSong:stop()
+  stateManager.GameState = "Mainmenu"
+end
+
 function gameManager.Pause()
   gameManager.pause = not gameManager.pause
+end
+
+function gameManager:drawBackground()
+  local width, height = img:getDimensions()
+  love.graphics.setColor(1, 1, 1, 1)
+  love.graphics.draw(img, 0, 0, 0, gw / width, gh / height)
 end
 
 function gameManager:setBackground()
@@ -75,10 +86,8 @@ function gameManager.Restart()
   xbar = 20
   nextNote = 1
   endTime = 0
-  for i, v in ipairs(mapNotes) do
-    listOfArrows = {}
-    listOfSliders = {}
-  end
+  listOfArrows = {}
+  listOfSliders = {}
 end
 
 return gameManager

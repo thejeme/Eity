@@ -26,7 +26,7 @@ end
 
 
 function soundManager:load()
-  soundManager.mainmenusrc = love.audio.newSource("assets/verse_one_bgmusic.mp3", "static")
+  soundManager.mainmenusrc = love.audio.newSource("assets/verse_one_bgmusic.mp3", "stream")
   
   soundManager.buttonOversrc = love.audio.newSource("assets/ButtonOver.wav", "static")
   soundManager.buttonHitsrc = love.audio.newSource("assets/ButtonHit.wav", "static")

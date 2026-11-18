@@ -8,7 +8,6 @@ pressure = require "maps/The Pressure/map"
 stellaRium = require "maps/Stella-rium/map"
 virtualParadise = require "maps/Virtual Paradise/map"
 coldGreenEyes = require "maps/Cold Green Eyes/map"
---elama = require "maps/Elaman koulu/map"
 --template = require "maps/Template/map"
 
 mapManager = { }
@@ -63,7 +62,6 @@ function mapManager:load()
   table.insert(listOfMaps, yumeiroParade)  
   
   
-  --table.insert(listOfMaps, elama)  
   --table.insert(listOfMaps, template)
   for i, v in ipairs(mapManager.getListOfMaps()) do
     for i, v in ipairs(v) do

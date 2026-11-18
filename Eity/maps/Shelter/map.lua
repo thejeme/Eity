@@ -1,7 +1,7 @@
 map = { }
  
 function map:getBackground()
-  return "maps/Shelter/bg.jpg"
+  return "maps/Shelter/BG.jpg"
 end
 
 function map:getTitle()

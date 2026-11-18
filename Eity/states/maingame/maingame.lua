@@ -5,14 +5,11 @@ require 'states/maingame/player'
 
 Maingame = {}
 
-local scaleX, scaleY
-
 function Maingame:load()
   maingame_UI:load()
   nextNote = 1
   endTime = 0
   mapNotes = {}
-  scaleX, scaleY = gameManager:getImageScaleForNewDimensions(img, gw, gh)
 end
 
 function Maingame:update(dt)
@@ -34,18 +31,18 @@ function Maingame:update(dt)
     mapSong:play()
     gameManager.gametime = gameManager.gametime + dt * modManager.getSpeed()
     
-    for i, v in ipairs(mapNotes) do
-      if (#mapNotes >= nextNote and (mapNotes[nextNote][5] - 400) * 0.001 < gameManager.gametime) then
-        if (mapNotes[nextNote][4] == 0) then
-          createArrow(mapNotes[nextNote][1], math.ceil(mapNotes[nextNote][2] * 4 / 512), mapNotes[nextNote][3] * modManager.getSpeed())    
-        elseif (mapNotes[nextNote][4] ~= 0) then
-          createSlider(mapNotes[nextNote][1], math.ceil(mapNotes[nextNote][2] * 4 / 512), mapNotes[nextNote][3] * modManager.getSpeed(), mapNotes[nextNote][4])
-        end
-        nextNote = nextNote + 1
+    while mapNotes[nextNote] and (mapNotes[nextNote][5] - 400) * 0.001 < gameManager.gametime do
+      local note = mapNotes[nextNote]
+      local lane = math.ceil(note[2] * 4 / 512)
+      local speed = note[3] * modManager.getSpeed()
+      if note[4] == 0 then
+        createArrow(note[1], lane, speed)
+      else
+        createSlider(note[1], lane, speed, note[4])
       end
+      nextNote = nextNote + 1
     end
 
-    
     Arrow:update(dt)
     Slider:update(dt)
     
@@ -78,35 +75,29 @@ function Maingame:update(dt)
   end
 end
 
+local directions = {
+  dpleft = "left", x = "left", dpright = "right", b = "right",
+  dpup = "up", y = "up", dpdown = "down", a = "down",
+}
+
 function Maingame:gamepadpressed(joystick, button)
-  if gameManager.pause then
-    if button == "y" then
-      gameManager.pause = false
+  if gameManager.pause or gameManager.isFailed then
+    if (button == "y" or button == "start") and not gameManager.isFailed then
+      gameManager.Pause()
     elseif button == "b" then
       gameManager.Restart()
     elseif button == "a" then
-      stateManager.GameState = "Mainmenu"
+      gameManager.ReturnToMenu()
     end
-  else
-    if button == "dpleft" or button == "x" then
-      player.direction = "left"
-    elseif button == "dpright" or button == "b" then
-      player.direction = "right"
-    end
-
-    if button == "dpup" or button == "y" then
-      player.direction = "up"
-    elseif button == "dpdown" or button == "a" then
-      player.direction = "down"
-    end  
-  end
-  if button == "start" then
+  elseif button == "start" then
     gameManager.Pause()
+  elseif directions[button] then
+    player:keypressed(directions[button])
   end
 end
 
 function Maingame:draw()
-  love.graphics.draw(img, 0, 0, 0, scaleX, scaleY)
+  gameManager:drawBackground()
   love.graphics.setColor(0.3, 0.3, 0.3, gameManager.backgroundDim)
   love.graphics.rectangle('fill', 0, 0, gw, gh)
   Arrow:draw()
@@ -137,9 +128,7 @@ function Maingame:keypressed(key)
   
   
   
-  if not gameManager.pause or not gameManager.isFailed then
-    player:keypressed(key)
-  end
+  player:keypressed(key)
 end 
 
 return Maingame

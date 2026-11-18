@@ -197,6 +197,8 @@ function Arrow:update(dt)
   end
 end
 
+end
+
 function Arrow:draw()
 
   for i, v in ipairs(listOfArrows) do
@@ -300,6 +302,5 @@ function Arrow:draw()
       end
     end
   end
-end
 
 return Arrow

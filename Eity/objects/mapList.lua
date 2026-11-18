@@ -1,5 +1,3 @@
-socket = require 'socket'
-
 mapList = {}
 
 local bigFont
@@ -9,7 +7,6 @@ local smallestFont
 local maplist
 local scrollY
 local selectedMap
-local isMouseOnMap
 
 function mapList:load(listOfMaps)
   bigFont = love.graphics.newFont("assets/roboto.ttf", 84)
@@ -19,19 +16,40 @@ function mapList:load(listOfMaps)
   maplist = listOfMaps
   scrollY = 0
   selectedMap = 1
-  isMouseOnMap = false
 end
 
 function mapList.getSelectedMapIndex()
   return selectedMap
 end
 
+local function selectMap(index)
+  if index ~= selectedMap then
+    selectedMap = index
+    img = gameManager:setBackground()
+  end
+end
+
+function mapList.scroll(delta)
+  local minScroll = math.min(0, gh * 0.92 - (100 + 111 * (#maplist - 1) + 100))
+  scrollY = math.max(minScroll, math.min(0, scrollY + delta))
+end
+
+local function revealSelected()
+  local top = scrollY + 100 + 111 * (selectedMap - 1)
+  local visibleTop, visibleBottom = gh * 0.08, gh * 0.92
+  if top < visibleTop then
+    mapList.scroll(visibleTop - top)
+  elseif top + 100 > visibleBottom then
+    mapList.scroll(visibleBottom - top - 100)
+  end
+end
+
 function mapList.PickRandomMapIndex()
-  math.randomseed(socket.gettime())
-  selectedMapCheck = math.random(1, #mapManager.getListOfMaps())
-  if(selectedMapCheck == selectedMap) then selectedMapCheck = math.random(1, #mapManager.getListOfMaps()) end
-  selectedMap = selectedMapCheck
-  img = gameManager:setBackground()
+  if #maplist > 1 then
+    local index = love.math.random(#maplist - 1)
+    selectMap(index < selectedMap and index or index + 1)
+    revealSelected()
+  end
 end
 
 function mapList:draw()
@@ -78,44 +96,24 @@ function DrawGrade(i)
   love.graphics.printf(saveManager.highscores.mapGrade[i], gw * 0.61, scrollY + 116 + 111 * (i - 1), gw * 0.6, "center") 
 end
 
-function mapList:mousepressed(x, y, button)  
-  for i, v in ipairs(maplist) do
-    isMouseOnMap = mx > gw - 820 and mx < gw - 820 + 700 and
-                            my > scrollY + 100 + 111 * (i - 1) and my < scrollY + 100 + 111 * (i - 1) + 100 and
-                            my < gh * 0.92       
-    if isMouseOnMap and button == 1 then    
-      selectedMap = i    
-      img = gameManager:setBackground()
-    end  
-  end 
-end
-
-
-function love.wheelmoved(x, y)
-    if y > 0 then
-        scrollY = scrollY + 30
-        if (scrollY >= 0) then
-          scrollY = 0
-        end
-    elseif y < 0 then
-        scrollY = scrollY - 30
-        if (scrollY <= 890 + #maplist * -111) then
-          scrollY = 890 + #maplist * -111
-        end
+function mapList:mousepressed(x, y, button)
+  if button ~= 1 or y < gh * 0.08 or y >= gh * 0.92 then return end
+  for index in ipairs(maplist) do
+    local left = index == selectedMap and gw - 820 or gw - 780
+    local top = scrollY + 100 + 111 * (index - 1)
+    if x >= left and x < gw - 120 and y >= top and y < top + 100 then
+      selectMap(index)
+      return
     end
+  end
 end
-
 
 function mapList.mapListUp()
-  if selectedMap > 1 then
-    selectedMap = selectedMap - 1
-    img = gameManager:setBackground()
-  end
+  selectMap(math.max(1, selectedMap - 1))
+  revealSelected()
 end
 
 function mapList.mapListDown()
-  if selectedMap < #maplist then
-    selectedMap = selectedMap + 1
-    img = gameManager:setBackground()
-  end
+  selectMap(math.min(#maplist, selectedMap + 1))
+  revealSelected()
 end

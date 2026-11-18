@@ -46,10 +46,12 @@ function Mainmenu:gamepadpressed(joystick, button)
       PressedQuit = false
     end
   elseif menustate == "Options" then
-    if button == "a" then
-      menustate = "Startmenu"
+    if button == "a" or button == "b" then
+      BackToStartScreen()
     end
-  elseif menustate == "Songselect" and not isMods then
+  elseif menustate == "Songselect" and isMods then
+    if button == "b" then isMods = false end
+  elseif menustate == "Songselect" then
     if button == "a" then
       gameManager.RestartNewMap()
     elseif button == "x" then
@@ -83,7 +85,8 @@ end
 
 function Mainmenu:draw()
   if menustate == "Startmenu" or menustate == "Options" then
-    love.graphics.draw(mainBG, 0, 0, 0, 1, 1)
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.draw(mainBG, 0, 0, 0, scaleX, scaleY)
     love.graphics.setColor(0.3, 0.3, 0.3, 0.5)
     love.graphics.rectangle('fill', 0, 0, gw, gh)
   end
@@ -115,12 +118,7 @@ function Mainmenu:keypressed(key)
   elseif key == "escape" and menustate == "Startmenu" then
     PressedQuit = true
   elseif key == "escape" and menustate == "Options" then
-    saveManager:saveSettings()
-    menustate = "Startmenu"
-      if (changedResolution) then
-        changedResolution = false
-        simpleScale.updateWindow(resolutionList[saveManager.settings.resolutionIndex][1], resolutionList[saveManager.settings.resolutionIndex][2])
-      end
+    BackToStartScreen()
   end
 end
 
