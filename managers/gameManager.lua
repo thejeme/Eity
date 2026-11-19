@@ -48,10 +48,11 @@ function gameManager.Pause()
   end
 end
 
-function gameManager:drawBackground()
-  local width, height = img:getDimensions()
-  love.graphics.setColor(1, 1, 1, 1)
-  love.graphics.draw(img, 0, 0, 0, gw / width, gh / height)
+function gameManager:drawBackground(image, opacity)
+  image = image or img
+  local width, height = image:getDimensions()
+  love.graphics.setColor(1, 1, 1, opacity or 1)
+  love.graphics.draw(image, 0, 0, 0, gw / width, gh / height)
 end
 
 function gameManager:setBackground()
@@ -69,7 +70,12 @@ function gameManager.RestartNewMap()
   if mapSong ~= nil then
     mapSong:stop()
   end
+  mapList.finishBackground()
   mapSong = gameManager:setSong()
+  gameManager.songDuration = mapSong:getDuration("seconds")
+  if gameManager.songDuration <= 0 then
+    gameManager.songDuration = mapManager.getLengthOfIndex(mapList.getSelectedMapIndex())
+  end
   mapSong:setVolume(saveManager.settings.musicVolume)  
   gameManager.Restart()
 end

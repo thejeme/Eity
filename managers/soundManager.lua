@@ -66,7 +66,29 @@ local previewStarts = {
 local previewIndex, previewSource
 local settled, elapsed = 0, 0
 
+local outgoing, fadeTime, fadeVolume
+local fadeDuration = 0.16
+
+local function releaseOutgoing()
+  if outgoing then
+    outgoing:stop()
+    outgoing:release()
+    outgoing = nil
+  end
+end
+
+function soundManager.fadePreview()
+  if previewSource then
+    releaseOutgoing()
+    outgoing, previewSource = previewSource, nil
+    fadeVolume, fadeTime = outgoing:getVolume(), fadeDuration
+  end
+  previewIndex = nil
+  settled, elapsed = 0, 0
+end
+
 function soundManager.stopPreview()
+  releaseOutgoing()
   if previewSource then
     previewSource:stop()
     previewSource:release()
@@ -77,12 +99,20 @@ function soundManager.stopPreview()
 end
 
 function soundManager.updatePreview(index, dt)
-  if index ~= previewIndex then
+  if not index then
     soundManager.stopPreview()
+    return
+  end
+  if outgoing then
+    fadeTime = math.max(0, fadeTime - dt)
+    outgoing:setVolume(fadeVolume * fadeTime / fadeDuration)
+    if fadeTime == 0 then releaseOutgoing() end
+  end
+  if index ~= previewIndex then
+    soundManager.fadePreview()
     previewIndex = index
     return
   end
-  if not index then return end
 
   settled = settled + dt
   if settled < 0.45 then return end

@@ -15,7 +15,7 @@ local modsHiddenButton, modsHalfSpeedButton, modsDoubleSpeedButton, modsHiddenBu
 
 function Songselect:load()
   mapList:load(mapManager.getListOfMaps())
-  img = gameManager:setBackground()
+  mapList.finishBackground()
   bigFont = love.graphics.newFont("assets/roboto.ttf", 84)
   scoreFont = love.graphics.newFont("assets/roboto.ttf", 42)
   smallFont = love.graphics.newFont("assets/roboto.ttf", 24)
@@ -290,7 +290,7 @@ end
 
 
 function Background()
-  gameManager:drawBackground()
+  mapList.drawBackground()
   love.graphics.setColor(0.3, 0.3, 0.3, gameManager.backgroundDim)
   love.graphics.rectangle('fill', 0, 0, gw, gh)
 end

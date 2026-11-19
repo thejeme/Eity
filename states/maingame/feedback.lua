@@ -1,6 +1,7 @@
 local feedback = {}
 local impacts = {}
 local milestone = 0
+local finishPulse = 0
 local brokenCombo, breakTime = 0, 0
 local blue = {0.25, 0.77, 1}
 local coral = {1, 0.39, 0.45}
@@ -10,7 +11,7 @@ local angles = {0, -math.pi / 2, math.pi, math.pi / 2}
 
 function feedback.reset()
   impacts = {}
-  milestone = 0
+  milestone, finishPulse = 0, 0
   brokenCombo, breakTime = 0, 0
 end
 
@@ -46,7 +47,12 @@ function feedback.hit(result, note, combo)
   if not miss and combo > 0 and combo % 25 == 0 then milestone = 0.52 end
 end
 
+function feedback.fullCombo()
+  milestone, finishPulse = 0, 0.65
+end
+
 function feedback.update(dt)
+  finishPulse = math.max(0, finishPulse - dt)
   breakTime = math.max(0, breakTime - dt)
   milestone = math.max(0, milestone - dt)
   for i = #impacts, 1, -1 do
@@ -61,6 +67,12 @@ function feedback.draw()
   g.push("all")
   g.translate(gw / 2, gh / 2)
   local rim = gh * 0.1
+  if finishPulse > 0 then
+    local fade = finishPulse / 0.65
+    g.setColor(mint[1], mint[2], mint[3], fade)
+    g.setLineWidth(3 + 6 * fade)
+    g.circle("line", 0, 0, rim + 8 + 52 * (1 - fade * fade), 4)
+  end
   if milestone > 0 then
     local fade = milestone / 0.52
     g.setColor(mint[1], mint[2], mint[3], fade * 0.76)

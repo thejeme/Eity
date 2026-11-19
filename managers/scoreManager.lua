@@ -26,6 +26,7 @@ function scoreManager.Restart()
   scoreManager.score = 0
   scoreManager.combo = 0
   scoreManager.maxCombo = 0
+  scoreManager.fullCombo = false
   scoreManager.misses = 0
   scoreManager.hits = 0
   scoreManager.destroyednotes = 0
@@ -111,6 +112,16 @@ function scoreManager:draw()
   love.graphics.setColor(1, 1, 1, 1)
   love.graphics.printf(scoreManager.combo .. "x", 5, gh - 50, gw, "left")
   love.graphics.printf(string.format("%08d", scoreManager.score), 0, 0, gw, "right")
+  local width = 225
+  local x = gw - width - 5
+  local duration = gameManager.songDuration or 0
+  local progress = duration > 0 and math.min(1, (gameManager.tailTime or 0) / duration) or 0
+  if #mapNotes > 0 and scoreManager.destroyedArrows == #mapNotes then progress = 1 end
+  love.graphics.setColor(0.2, 0.24, 0.27, 0.9)
+  love.graphics.rectangle("fill", x, 83, width, 5)
+  love.graphics.setColor(0.47, 0.81, 1, 1)
+  love.graphics.rectangle("fill", x, 83, width * progress, 5)
+  love.graphics.setColor(White)
   love.graphics.setFont(buttonSmallFont)
   love.graphics.printf(string.format("%0.2f", scoreManager.getAccuracy()) .. "%", 0, 50, gw, "right")
 end

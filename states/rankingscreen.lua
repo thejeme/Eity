@@ -96,6 +96,11 @@ function Rankingscreen.Ranking()
   love.graphics.printf(scoreManager.getGrade(), gw * 0.45 + 6, gh * 0.2 + 6, gw * 0.6, "center")
   love.graphics.setColor(scoreManager.getGradeColor(scoreManager.getGrade()))
   love.graphics.printf(scoreManager.getGrade(), gw * 0.45, gh * 0.2, gw * 0.6, "center")
+  if scoreManager.fullCombo then
+    love.graphics.setFont(titleFont)
+    love.graphics.setColor(0.40, 1, 0.82, 1)
+    love.graphics.printf("Full Combo", gw * 0.60, gh * 0.80, gw * 0.30, "center")
+  end
 end
 
 function Rankingscreen.Results()

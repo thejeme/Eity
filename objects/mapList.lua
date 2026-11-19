@@ -10,6 +10,8 @@ local difficultyRank = {Easy = 1, Normal = 2, Hard = 3, Insane = 4}
 local scrollY
 local selectedRow
 local selectionGlow = 0
+local artworkRow, previousArt
+local artFade = 1
 
 function mapList:load(listOfMaps)
   bigFont = love.graphics.newFont("assets/roboto.ttf", 84)
@@ -32,6 +34,7 @@ function mapList:load(listOfMaps)
   end)
   scrollY = 0
   selectedRow = 1
+  artworkRow, previousArt, artFade = nil, nil, 1
 end
 
 function mapList.getSelectedMapIndex()
@@ -51,12 +54,26 @@ local function selectMap(index)
   if index ~= selectedRow then
     selectedRow = index
     selectionGlow = 1
-    img = gameManager:setBackground()
   end
 end
 
+local function loadSelectedArt()
+  img = gameManager:setBackground()
+  artworkRow = selectedRow
+end
+
+function mapList.finishBackground()
+  if artworkRow ~= selectedRow then loadSelectedArt() end
+  previousArt, artFade = nil, 1
+end
+
+function mapList.drawBackground()
+  if previousArt then gameManager:drawBackground(previousArt) end
+  gameManager:drawBackground(img, artFade)
+end
+
 function mapList.scroll(delta)
-  if delta ~= 0 then soundManager.stopPreview() end
+  if delta ~= 0 then soundManager.fadePreview() end
   local minScroll = math.min(0, gh * 0.92 - (100 + 111 * (#songOrder - 1) + 100))
   scrollY = math.max(minScroll, math.min(0, scrollY + delta))
 end
@@ -80,6 +97,15 @@ function mapList.PickRandomMapIndex()
 end
 
 function mapList:update(dt)
+  artFade = math.min(1, artFade + dt / 0.2)
+  if artFade == 1 then
+    previousArt = nil
+    if artworkRow ~= selectedRow then
+      previousArt = img
+      loadSelectedArt()
+      artFade = 0
+    end
+  end
   selectionGlow = math.max(0, selectionGlow - dt * 4)
 end
 

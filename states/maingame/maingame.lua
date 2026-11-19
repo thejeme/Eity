@@ -63,6 +63,11 @@ function Maingame:update(dt)
   advanceChart(target - saveManager.settings.audioOffsetMs * 0.001 * speedMultiplier, speedMultiplier)
 
   if #mapNotes < scoreManager.destroyedArrows + 1 then
+    if not scoreManager.fullCombo and #mapNotes > 0 and not modManager.isAuto
+        and scoreManager.misses == 0 and scoreManager.combo == #mapNotes then
+      scoreManager.fullCombo = true
+      feedback.fullCombo()
+    end
     if endTime < 2 then          
       endTime = endTime + dt * modManager.getSpeed()
     else
