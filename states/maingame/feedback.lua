@@ -1,6 +1,7 @@
 local feedback = {}
 local impacts = {}
 local milestone = 0
+local brokenCombo, breakTime = 0, 0
 local blue = {0.25, 0.77, 1}
 local coral = {1, 0.39, 0.45}
 local mint = {0.40, 1, 0.82}
@@ -10,11 +11,27 @@ local angles = {0, -math.pi / 2, math.pi, math.pi / 2}
 function feedback.reset()
   impacts = {}
   milestone = 0
+  brokenCombo, breakTime = 0, 0
+end
+
+function feedback.comboBreak(combo)
+  if combo >= 10 then brokenCombo, breakTime = combo, 0.55 end
+end
+
+function feedback.drawComboBreak()
+  if breakTime <= 0 then return end
+  local fade = breakTime / 0.55
+  love.graphics.push("all")
+  love.graphics.setFont(buttonSmallFont)
+  love.graphics.setColor(coral[1], coral[2], coral[3], fade)
+  love.graphics.print(brokenCombo .. "x", 8, gh - 88 - 14 * (1 - fade))
+  love.graphics.pop()
 end
 
 function feedback.hit(result, note, combo)
   -- Hold coverage and release are scored together. Draw one burst per note.
   if result == "sliderStart" then return end
+  if note.maxlength and (result == "miss" or note.scoreLength > 0) then return end
   local last = impacts[#impacts]
   if last and last.note == note then return end
   local miss = result == "miss"
@@ -30,6 +47,7 @@ function feedback.hit(result, note, combo)
 end
 
 function feedback.update(dt)
+  breakTime = math.max(0, breakTime - dt)
   milestone = math.max(0, milestone - dt)
   for i = #impacts, 1, -1 do
     local hit = impacts[i]
@@ -75,15 +93,20 @@ function feedback.draw()
       local gap = 6 + t * 14
       g.line(-8, -gap-8, 0, -gap, 8, -gap-8)
       g.line(-8, gap+8, 0, gap, 8, gap+8)
+    elseif hit.release then
+      local edge = 48 * fade
+      local inset = 32 * t
+      g.setLineWidth(3 + 6 * fade)
+      g.line(-edge - inset, -edge, -inset, 0, -edge - inset, edge)
     else
-      local rays = hit.release and 7 or 5
+      local rays = 5
       for ray = 1, rays do
         local angle = (ray - (rays + 1) / 2) * 0.37
         local distance = 7 + (1 - fade * fade) * (38 + 10 * (ray % 2))
         local dx, dy = math.cos(angle), math.sin(angle)
         g.line(dx * distance, dy * distance, dx * (distance + 12 * fade), dy * (distance + 12 * fade))
       end
-      g.circle("line", 0, 0, 5 + t * (hit.release and 35 or 19), 4)
+      g.circle("line", 0, 0, 5 + t * 19, 4)
     end
     g.pop()
   end

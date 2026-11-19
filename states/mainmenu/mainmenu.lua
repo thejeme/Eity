@@ -104,8 +104,8 @@ function Mainmenu:keypressed(key)
     Songselect:keypressed(key)
   elseif key == "escape" and menustate == "Startmenu" and not isWeb then
     PressedQuit = true
-  elseif key == "escape" and menustate == "Options" then
-    BackToStartScreen()
+  elseif menustate == "Options" then
+    Options:keypressed(key)
   end
 end
 

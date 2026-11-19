@@ -80,7 +80,8 @@ function love.quit()
   if discordRPC then discordRPC.shutdown() end
 end
 
-function love.keypressed(key)
+function love.keypressed(key, _, isRepeat)
+  if isRepeat and key == "space" then return end
   focus.clear()
   touchControls.active = false
   stateManager:keypressed(key)

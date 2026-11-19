@@ -18,6 +18,8 @@ function saveManager:load()
   
   chunk = love.filesystem.load("settings.txt")
   saveManager.settings = chunk()
+  local offset = tonumber(saveManager.settings.audioOffsetMs) or 0
+  saveManager.settings.audioOffsetMs = math.max(-250, math.min(250, math.floor(offset + 0.5)))
   
   
   
@@ -44,6 +46,7 @@ end
 
 function saveManager:saveSettings()
   settings = {}
+  settings.audioOffsetMs = saveManager.settings.audioOffsetMs
   settings.resolutionIndex = saveManager.settings.resolutionIndex
   settings.isEnabledFPS = saveManager.settings.isEnabledFPS
   settings.isEnabledVSync = saveManager.settings.isEnabledVSync

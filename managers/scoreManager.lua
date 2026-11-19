@@ -5,6 +5,7 @@ scoreManager = {}
 local note
 
 function scoreManager.ResetCombo()
+  feedback.comboBreak(scoreManager.combo)
   scoreManager.combo = 0
 end
 
@@ -105,6 +106,7 @@ function scoreManager.setHighScore()
 end
 
 function scoreManager:draw()
+  feedback.drawComboBreak()
   love.graphics.setFont(squareButtonsmallFont)
   love.graphics.setColor(1, 1, 1, 1)
   love.graphics.printf(scoreManager.combo .. "x", 5, gh - 50, gw, "left")

@@ -52,13 +52,15 @@ function Maingame:update(dt)
   local target
   if mapSong:isPlaying() then
     target = mapSong:tell("seconds")
+    gameManager.tailTime = target
   else
     -- Some charts have a tail after the recording ends. Never restart the music here.
     gameManager.audioEnded = true
     gameManager.tailTime = (gameManager.tailTime or gameManager.gametime) + dt * speedMultiplier
     target = gameManager.tailTime
   end
-  advanceChart(target, speedMultiplier)
+  -- Positive offsets delay judgments in real milliseconds at every playback speed.
+  advanceChart(target - saveManager.settings.audioOffsetMs * 0.001 * speedMultiplier, speedMultiplier)
 
   if #mapNotes < scoreManager.destroyedArrows + 1 then
     if endTime < 2 then          

@@ -1,4 +1,5 @@
 local input = {}
+local calibration = require "states/mainmenu/calibration"
 local focus = require "objects/menuFocus"
 local touchControls = require "objects/touchControls"
 local touch
@@ -83,6 +84,7 @@ end
 
 function love.focus(focused)
   if not focused then
+    if calibration.active then calibration.close(false) end
     touch = nil
     touchPointerDown = false
     stickDirections = {}

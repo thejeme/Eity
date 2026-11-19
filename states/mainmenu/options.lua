@@ -4,6 +4,8 @@ require 'objects/button'
 
 Options = {}
 
+local calibration = require "states/mainmenu/calibration"
+local calibrationButton
 local controls
 local backButton, generalButton, volumeButton, mainButton, musicButton, effectButton, slidertickButton
 local resolutionButton, vsyncButton, fpsButton
@@ -44,12 +46,20 @@ function Options:load()
       return true
     end
   end
-  controls = {vsyncButton, fpsButton, mainButton, musicButton,
+  calibrationButton = newButton(gw * 0.35, gh / 2 - 75, gw * 0.3, 50, 15, "Audio calibration", GrayOpacity4, White, Blue, "center", 0, 10, calibration.open)
+  controls = {vsyncButton, fpsButton, calibrationButton, mainButton, musicButton,
     effectButton, slidertickButton, backButton}
   if not isWeb then table.insert(controls, 1, resolutionButton) end
 end
 
+function Options:keypressed(key)
+  if calibration.active then calibration.keypressed(key)
+  elseif key == "escape" then BackToStartScreen()
+  elseif key == "c" then calibration.open() end
+end
+
 function Options:gamepadpressed(button)
+  if calibration.active then return calibration.gamepadpressed(button) end
   if button == "b" then
     BackToStartScreen()
   else
@@ -58,6 +68,8 @@ function Options:gamepadpressed(button)
 end
 
 function Options:update(dt)
+  if calibration.active then return end
+  calibrationButton:update(dt)
   backButton:update(dt)
   mainVolumeSlider:update()
   musicVolumeSlider:update()
@@ -66,6 +78,7 @@ function Options:update(dt)
 end
 
 function Options:draw()
+  if calibration.active then return calibration.draw() end
   focus.enter(controls)
   DrawButtons()
   DrawSliders()
@@ -85,6 +98,9 @@ local function onToggle(x, y, centerY)
 end
 
 function Options:mousepressed(x, y, button)
+  if calibration.active then return calibration.mousepressed(x, y, button) end
+  calibrationButton:mousepressed(x, y, button)
+  if calibration.active then return end
   backButton:mousepressed(x, y, button)
   if menustate ~= "Options" then return end
 
@@ -182,6 +198,7 @@ function DrawButtons()
   fpsButton:draw()
   drawToggle(gh / 2 - 125, saveManager.settings.isEnabledFPS)
   
+  calibrationButton:draw()
   volumeButton:draw()
   mainButton:draw()
   musicButton:draw()
