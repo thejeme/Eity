@@ -163,6 +163,11 @@ function DrawGrade(mapIndex, y)
   love.graphics.printf(grade, gw * 0.61 + 2, y + 2, gw * 0.6, "center")
   love.graphics.setColor(scoreManager.getGradeColor(grade))
   love.graphics.printf(grade, gw * 0.61, y, gw * 0.6, "center")
+  if saveManager.highscores.mapFullCombo[mapIndex] then
+    local x = gw * 0.91 - rankingFont:getWidth(grade) / 2 - 18
+    love.graphics.setColor(0.40, 1, 0.82, 1)
+    love.graphics.circle("fill", x, y + 34, 9, 4)
+  end
 end
 
 function mapList:mousepressed(x, y, button)

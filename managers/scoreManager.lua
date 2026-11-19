@@ -99,11 +99,16 @@ function scoreManager:update(dt)
   end
 end
 
-function scoreManager.setHighScore()
-  saveManager.highscores.mapScore[mapList.getSelectedMapIndex()] = scoreManager.score
-  saveManager.highscores.mapGrade[mapList.getSelectedMapIndex()] = scoreManager.getGrade()
-  
-  saveManager:saveHighscore()
+function scoreManager.saveResult(index)
+  local records = saveManager.highscores
+  local newBest = scoreManager.score > records.mapScore[index]
+  local firstFullCombo = scoreManager.fullCombo and not records.mapFullCombo[index]
+  if newBest then
+    records.mapScore[index] = scoreManager.score
+    records.mapGrade[index] = scoreManager.getGrade()
+  end
+  if firstFullCombo then records.mapFullCombo[index] = true end
+  if newBest or firstFullCombo then saveManager:saveHighscore() end
 end
 
 function scoreManager:draw()

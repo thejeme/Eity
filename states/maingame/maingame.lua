@@ -77,10 +77,9 @@ function Maingame:update(dt)
       endTime = 0
       love.mouse.setVisible(true)
       stateManager.GameState = "Rankingscreen"
-      Rankingscreen.previousBest = saveManager.highscores.mapScore[mapList.getSelectedMapIndex()]
-      if Rankingscreen.previousBest < scoreManager.score then
-        scoreManager.setHighScore()
-      end
+      local index = mapList.getSelectedMapIndex()
+      Rankingscreen.previousBest = saveManager.highscores.mapScore[index]
+      scoreManager.saveResult(index)
     end
   end
     

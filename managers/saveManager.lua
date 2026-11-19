@@ -33,9 +33,13 @@ function saveManager:loadScores(mode)
     scores = assert(love.filesystem.load(self.scoreFile))()
   end
 
+  scores.mapFullCombo = scores.mapFullCombo or {}
   for index in ipairs(mapManager.getListOfMaps()) do
     scores.mapScore[index] = scores.mapScore[index] or 0
     scores.mapGrade[index] = scores.mapGrade[index] or ""
+    if scores.mapScore[index] > 0 and scores.mapGrade[index] == "SS" then
+      scores.mapFullCombo[index] = true
+    end
   end
   saveManager.highscores = scores
 end
