@@ -39,13 +39,14 @@ def runtime(platform):
 
 def archive_game(destination):
     paths = subprocess.check_output(
-        ["git", "ls-files", "-z", "--", "Eity"], cwd=ROOT
+        ["git", "ls-files", "-z", "--", ":(top,glob)*.lua", "assets", "lib", "managers",
+         "maps", "mods", "objects", "states"], cwd=ROOT
     ).decode("utf-8").split("\0")
     with ZipFile(destination, "w", ZIP_DEFLATED) as archive:
         for name in filter(None, paths):
             path = ROOT / name
             if path.is_file() and path.suffix != ".dll":
-                archive.write(path, path.relative_to(ROOT / "Eity").as_posix())
+                archive.write(path, path.relative_to(ROOT).as_posix())
 
 
 def zip_tree(folder, destination, executables=()):
@@ -73,7 +74,7 @@ def build_windows(game, folder):
         with (folder / "Eity.exe").open("wb") as output, engine.open(engine_exe) as executable, game.open("rb") as data:
             shutil.copyfileobj(executable, output)
             shutil.copyfileobj(data, output)
-    shutil.copyfile(ROOT / "Eity/discord-rpc.dll", folder / "discord-rpc.dll")
+    shutil.copyfile(ROOT / "discord-rpc.dll", folder / "discord-rpc.dll")
 
 
 def build_linux(game, folder):

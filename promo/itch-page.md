@@ -2,13 +2,13 @@
 
 **Follow the beat. Face the right way.**
 
-Arrows rush toward you from four directions. Rotate to catch the notes, stay lined up through sliders, and watch for notes that flip or punish a hit. Climb from easier charts to faster tracks, chase a higher grade, and change the challenge with speed and visibility mods.
+Arrows rush toward you from four directions. Rotate to catch the notes, stay lined up through sliders, and watch for notes that flip direction. Switch to Dodge to avoid red notes, or try Orbit for a pattern that turns every eight notes. Climb from easier charts to faster tracks, chase a higher grade, and change the challenge with speed and visibility mods.
 
 ## Controls
 
 - **Keyboard** — Use the arrow keys or WASD to face a direction. Press Esc to pause and R to restart.
 - **Gamepad** — Use the D-pad, either stick, or the four face buttons to aim. Press Start to pause. From the title screen, press the top face button to open song selection.
-- **Touch** — Tap above, below, left, or right of the center to face that direction. Tap the center diamond to pause. Swipe the song list to scroll.
+- **Touch** — Use the four direction buttons. Tap Pause in the upper-right. Swipe the song list to scroll.
 
 Play in your browser or download the game for Windows or Linux.
 

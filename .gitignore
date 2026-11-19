@@ -4,6 +4,7 @@ luac.out
 # Local release builds and runtime cache
 /dist/
 /.build/
+__pycache__/
 
 *.osu
 

@@ -12,7 +12,7 @@ from scipy.signal import find_peaks
 
 RATE = 22050
 HOP = 220
-CLOCKWISE = (448, 320, 64, 192)
+CLOCKWISE = (192, 64, 448, 320)
 
 
 @dataclass(frozen=True)
@@ -54,7 +54,12 @@ def analyze(path, bpm=None):
         onset_envelope=flux, sr=RATE, hop_length=HOP, bpm=bpm, trim=False, tightness=100,
     )
     if len(frames) < 8:
-        raise ValueError("Too few beats to generate a chart.")
+        # Give sparse recordings a pulse, but only place notes near audible material.
+        tempo = bpm or 90
+        attacks, _ = find_peaks(flux, prominence=0.12, distance=5)
+        phase = attacks[0] * HOP / RATE if len(attacks) else 0
+        beats = np.arange(phase, duration, 60 / tempo)
+        return duration, tempo, "sparse", beats, flux, loudness, attacks
     seconds_per_frame = HOP / RATE
     beats = frames * seconds_per_frame
     tempo = float(np.atleast_1d(estimated_bpm)[0])
@@ -94,7 +99,9 @@ def events_for_chart(beats, flux, loudness, peaks, duration, difficulty):
     frame_times = np.arange(len(flux)) * (HOP / RATE)
     local_activity = np.interp(beats, frame_times, loudness)
     accents = np.interp(beats, frame_times, flux)
-    bar_offset = int(np.argmax([np.mean(accents[i::4]) for i in range(4)]))
+    if len(beats) < 2:
+        return []
+    bar_offset = int(np.argmax([np.mean(accents[i::4]) if len(accents[i::4]) else 0 for i in range(4)]))
     peak_times = frame_times[peaks]
     minimum_time = 396 / difficulty.speed + 0.05
     candidates = []
@@ -116,6 +123,8 @@ def events_for_chart(beats, flux, loudness, peaks, duration, difficulty):
                 frame -= 1
             when = frame_times[frame]
         else:
+            if fraction:
+                return
             strength = flux[min(center, len(flux) - 1)]
         if minimum_time <= when <= duration - 0.16 and (mandatory or strength >= difficulty.subdivision):
             candidates.append((when, index, fraction, period, strength))
@@ -123,16 +132,28 @@ def events_for_chart(beats, flux, loudness, peaks, duration, difficulty):
     for index, beat in enumerate(beats[:-1]):
         period = beats[index + 1] - beat
         pulse = index - bar_offset
-        quiet = local_activity[index] < 0.40
-        if difficulty.subdivision > 1 and (quiet or period < 0.44):
-            if pulse % 2:
+        # Thin out intros and breakdowns. Let strong attacks bring a quiet beat back.
+        window = local_activity[max(0, index - 4):index + 5]
+        quiet = np.median(window) < 0.48
+        if local_activity[index] < 0.16 and accents[index] < 0.20:
+            continue
+        if difficulty == DIFFICULTIES["Easy"]:
+            if pulse % 2 and (period < 0.53 or quiet or accents[index] < 0.35):
                 continue
-        if difficulty.subdivision <= 1 and quiet and pulse % 2 and accents[index] < 0.34:
+        elif quiet and pulse % 2 and accents[index] < 0.44:
             continue
         add(beat, pulse, 0, period, True)
-        if difficulty.subdivision <= 1 and not quiet:
-            if pulse > 3 and (difficulty.subdivision < 0.7 or pulse % 4 in (1, 3)):
-                add(beat + period / 2, pulse, 0.5, period, False)
+        if quiet or difficulty == DIFFICULTIES["Easy"]:
+            continue
+        dense = local_activity[index] > 0.7
+        if difficulty == DIFFICULTIES["Insane"] and dense and pulse % 4 == 3:
+            fractions = (0.25, 0.5, 0.75)
+        elif difficulty == DIFFICULTIES["Normal"] and (pulse % 4 != 3 or not dense):
+            fractions = ()
+        else:
+            fractions = (0.5,)
+        for fraction in fractions:
+            add(beat + fraction * period, pulse, fraction, period, False)
 
     # Prefer the beat when a snapped subdivision crowds it. There must be time to turn.
     selected = []
@@ -148,7 +169,7 @@ def events_for_chart(beats, flux, loudness, peaks, duration, difficulty):
     return selected
 
 
-def notes_for_chart(events, difficulty, style):
+def notes_for_chart(events, difficulty, style, loudness):
     # The patterns are expressed as positions around the four gameplay directions.
     motifs = (
         (0, 1, 1, 2, 2, 3, 3, 0),
@@ -175,22 +196,29 @@ def notes_for_chart(events, difficulty, style):
         speed = difficulty.speed * (105 if lane % 2 == 0 else 100) // 100
         following = events[index + 1][0] if index + 1 < len(events) else when
         hold = min(period * 0.72, following - when - 0.20)
+        # A hold should follow a sustained sound and leave time to read the next turn.
+        sustain = loudness[int(when * RATE / HOP):int((when + max(0, hold)) * RATE / HOP)]
         length = 0
-        if fraction == 0 and step in (0, 2) and strength > 0.51 and hold >= 0.22 and bar - last_hold_bar >= difficulty.hold_bars:
+        if fraction == 0 and step in (0, 2) and strength > 0.51 and hold >= 0.22 and len(sustain) and np.percentile(sustain, 20) > 0.32 and bar - last_hold_bar >= difficulty.hold_bars:
             length = round(hold * speed)
             last_hold_bar = bar
         stamp = round(1000 * (when + 0.4 - 396 / difficulty.speed))
-        notes.append((1, CLOCKWISE[lane], speed, length, stamp))
+        reverse = (difficulty in (DIFFICULTIES["Hard"], DIFFICULTIES["Insane"])
+                   and not fraction and step == 0 and bar % 4 == style % 4
+                   and when - previous_time > 0.32 and strength > 0.45)
+        approach = (lane + 2) % 4 if reverse else lane
+        notes.append((2 if reverse else 1, CLOCKWISE[approach], speed, length, stamp))
         previous_lane, previous_time = lane, when
     return notes
 
 
-def write_map(output, title, artist, difficulty, duration, tempo, grid, notes):
+def write_map(output, title, artist, difficulty, duration, tempo, grid, notes, audio):
     folder = output.parent.name
+    background = next((p.name for p in sorted(output.parent.iterdir()) if p.stem.lower() == "bg" and p.suffix.lower() in (".jpg", ".png")), "bg.jpg")
     entries = (
         ("Title", title), ("Porter", artist), ("Difficult", difficulty),
-        ("Length", int(duration)), ("Song", f"maps/{folder}/song.mp3"),
-        ("Background", f"maps/{folder}/bg.jpg"),
+        ("Length", int(duration)), ("Song", f"maps/{folder}/{audio.name}"),
+        ("Background", f"maps/{folder}/{background}"),
     )
     with output.open("w", encoding="utf-8", newline="\n") as file:
         file.write(f"-- Generated by tools/generate_map.py ({tempo:.2f} BPM, {grid} beat grid).\nlocal map = {{}}\n\n")
@@ -215,10 +243,10 @@ def main():
     difficulty = DIFFICULTIES[args.difficulty]
     duration, tempo, grid, beats, flux, loudness, peaks = analyze(args.audio, args.bpm)
     events = events_for_chart(beats, flux, loudness, peaks, duration, difficulty)
-    notes = notes_for_chart(events, difficulty, args.style)
+    notes = notes_for_chart(events, difficulty, args.style, loudness)
     if not notes:
         parser.error("analysis produced an empty chart")
-    write_map(args.output, args.title, args.artist, args.difficulty, duration, tempo, grid, notes)
+    write_map(args.output, args.title, args.artist, args.difficulty, duration, tempo, grid, notes, args.audio)
     print(f"{args.title}: {tempo:.2f} BPM ({grid}), {len(notes)} notes, "
           f"{sum(bool(note[3]) for note in notes)} holds, {len(notes) * 60 / duration:.0f} notes/min")
 

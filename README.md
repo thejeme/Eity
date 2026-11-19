@@ -24,7 +24,7 @@ Use `python3` if that is how Python is installed. First builds download the pinn
 | Linux x86-64 | `dist/Eity-linux.zip` | Extract the archive and run `./Eity`. The launcher extracts the bundled AppImage at runtime and works without FUSE. |
 | Browser | `dist/Eity-web.zip` | Extract the archive, serve that directory with `python -m http.server 8000`, and open [localhost:8000](http://localhost:8000). |
 
-For local development, run `love Eity` with [LÖVE 11.5](https://github.com/love2d/love/releases/tag/11.5).
+For local development, run `love .` with [LÖVE 11.5](https://github.com/love2d/love/releases/tag/11.5).
 
 ## Upload to itch.io
 
@@ -36,11 +36,15 @@ Create an HTML project. Upload the Web ZIP intact and mark it as playable in the
 | --- | --- | --- |
 | Keyboard | Arrow keys or WASD to face a direction. Esc pauses and R restarts. | Arrow keys move through songs. Enter plays and Esc goes back. |
 | Gamepad | D-pad, either stick, or the face buttons to face a direction. Start pauses. | From the title screen, press the top face button to open the song list. Move with the D-pad or a stick. Bottom face button plays, left face button picks a random song, and right face button goes back. |
-| Touch | Tap relative to the center to face that direction. Tap the center diamond to pause. | Swipe the list to scroll. Tap a song to select it and tap Play to start. |
+| Touch | Use the four directional buttons and tap Pause in the upper-right. | Swipe the list to scroll. Tap a song to select it and tap Play to start. |
 
 Mapped gamepads use SDL's standard layout. Controllers without a mapping use the first two axes, the hat, and the common raw button positions. Actual raw button positions depend on the controller.
 
 Song Select plays a 12-second excerpt after the selection settles. Switching away during a song pauses playback. Resume with the existing pause controls. On Results, press R or Enter, the left face button, or tap Retry to replay with the same mods. The score difference compares your run with your previous best for that map.
+
+## Modes and modifiers
+
+Catch blue notes and follow the reversed direction for orange notes. Switch the Song Select mode to Dodge to turn every arrival into a red tap. Face any of the other three directions to score. Catch and Dodge each keep their own grades and personal bests for the regenerated charts. The Orbit modifier rotates the pattern clockwise after every eight notes while preserving musical timing. On keyboard, D switches modes, M opens Mods, and O toggles Orbit there.
 
 ## Charts
 
