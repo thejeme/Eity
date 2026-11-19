@@ -12,7 +12,7 @@ Easy emphasizes the main beat. Normal adds selected offbeats. Hard increases the
 
 ## Meteor Sightseeing set
 
-Song Select groups all charts by difficulty from Easy to Insane and sorts titles alphabetically within each group. The shipped charts use the zero-based alphabetical position of the song folder as their style. Quiet passages thin out, optional offbeats require a nearby attack, and holds require sustained energy and a gap before the next turn. Hard and Insane also introduce isolated reverse notes.
+Song Select groups all charts by difficulty from Easy to Insane and sorts titles alphabetically within each group. The shipped charts use the zero-based alphabetical position of the song folder as their style. Quiet passages thin out, optional offbeats require a nearby attack, and holds require sustained energy and a gap before the next turn.
 
 | In-game title | Vocal | Difficulty | Tempo | Generator options |
 | --- | --- | --- | --- | --- |

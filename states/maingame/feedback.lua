@@ -2,7 +2,6 @@ local feedback = {}
 local impacts = {}
 local milestone = 0
 local blue = {0.25, 0.77, 1}
-local amber = {1, 0.70, 0.29}
 local coral = {1, 0.39, 0.45}
 local mint = {0.40, 1, 0.82}
 -- Angles point from the center toward the incoming note.
@@ -20,9 +19,8 @@ function feedback.hit(result, note, combo)
   if last and last.note == note then return end
   local miss = result == "miss"
   local angle = angles[note.direction]
-  if note.type == 2 then angle = angle + math.pi end
   local release = result == "sliderEnd"
-  local color = miss and coral or (release and mint or (note.type == 2 and amber or blue))
+  local color = miss and coral or (release and mint or blue)
   if #impacts >= 12 then table.remove(impacts, 1) end
   impacts[#impacts + 1] = {
     note = note, angle = angle, age = 0, duration = release and 0.38 or 0.28,
@@ -54,7 +52,7 @@ function feedback.draw()
   for _, slider in ipairs(listOfSliders) do
     if slider.holding then
       g.push()
-      g.rotate(angles[slider.direction] + (slider.type == 2 and math.pi or 0))
+      g.rotate(angles[slider.direction])
       local filled = 1 - math.max(0, slider.length) / slider.maxlength
       local color = mint
       g.setColor(color[1], color[2], color[3], 0.85)

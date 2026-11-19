@@ -111,7 +111,6 @@ function Rankingscreen.Results()
     love.graphics.printf("Dodged " .. scoreManager.hits .. " / " .. #mapNotes, 50, gh * 0.36, gw / 2, "center")
   else
     Rankingscreen:Blues()
-    Rankingscreen:yellows()
   end
   love.graphics.printf("Combo " .. scoreManager.maxCombo .. "x", 100, gh * 0.59, 450, "left")           
   love.graphics.printf("Accuracy " ..string.format("%0.2f",  scoreManager.getAccuracy()) .. "%" , 475, gh * 0.59, 450, "left")                      
@@ -192,60 +191,6 @@ function Rankingscreen:Blues()
                         13 + 500 + 100, gh / 2 - 40 - gh * 0.2,
                         13 + 500, gh / 2 - 40 - gh * 0.2,
                         -26 + 500, gh / 2 - gh * 0.2)
-
-end
-
-function Rankingscreen:yellows()
-  love.graphics.setColor(1, 1, 1, 1)
-  love.graphics.printf(scoreManager.collectedYellowArrows .. "/" .. scoreManager.totalYellowArrows, -26 + 130 + 90, gh / 2 - gh * 0.08, 500, "left")
-  
-  love.graphics.setColor(1, 1, 1, 1)
-  love.graphics.printf(scoreManager.collectedYellowSliders .. "/" .. scoreManager.totalYellowSliders, -26 + 600 + 90, gh / 2 - gh * 0.08, 500, "left")
-  
-  
-  love.graphics.setColor(219 / 255, 130 / 255, 52 / 255, 1)
-  love.graphics.polygon('fill', -26 + 130, gh / 2 - gh * 0.05,
-                        13 + 130, gh / 2 + 40 - gh * 0.05,
-                        33 + 130, gh / 2 + 20 - gh * 0.05,
-                        13 + 130, gh / 2 - gh * 0.05,
-                        33 + 130, gh / 2 - 20 - gh * 0.05,
-                        13 + 130, gh / 2 - 40 - gh * 0.05)
-  love.graphics.setColor(1, 1, 1, 1)
-  love.graphics.line(-26 + 130, gh / 2 - gh * 0.05,
-                        13 + 130, gh / 2 + 40 - gh * 0.05,
-                        33 + 130, gh / 2 + 20 - gh * 0.05,
-                        13 + 130, gh / 2 - gh * 0.05,
-                        33 + 130, gh / 2 - 20 - gh * 0.05,
-                        13 + 130, gh / 2 - 40 - gh * 0.05,
-                        -26 + 130, gh / 2 - gh * 0.05)
-                        
-  love.graphics.setColor(0.25, 0.25, 0.25, 1)
-  love.graphics.rectangle('fill', 13 + 500, gh / 2 - 40 - gh * 0.05, 100, 80)
-
-  love.graphics.setColor(219 / 255, 130 / 255, 52 / 255, 1)
-  love.graphics.polygon('fill', -26 + 500, gh / 2 - gh * 0.05,
-                        13 + 500, gh / 2 + 40 - gh * 0.05,
-                        33 + 500, gh / 2 + 20 - gh * 0.05,
-                        13 + 500, gh / 2 - gh * 0.05,
-                        33 + 500, gh / 2 - 20 - gh * 0.05,
-                        13 + 500, gh / 2 - 40 - gh * 0.05)
-                        
-  love.graphics.polygon('fill', -26 + 500 + 100, gh / 2 - gh * 0.05,
-                        13 + 500 + 100, gh / 2 + 40 - gh * 0.05,
-                        33 + 500 + 100, gh / 2 + 20 - gh * 0.05,
-                        13 + 500 + 100, gh / 2 - gh * 0.05,
-                        33 + 500 + 100, gh / 2 - 20 - gh * 0.05,
-                        13 + 500 + 100, gh / 2 - 40 - gh * 0.05)
-  love.graphics.setColor(1, 1, 1, 1)
-  love.graphics.line(-26 + 500, gh / 2 - gh * 0.05,
-                        13 + 500, gh / 2 + 40 - gh * 0.05,
-                        13 + 500 + 100, gh / 2 + 40 - gh * 0.05,
-                        33 + 500 + 100, gh / 2 + 20 - gh * 0.05,
-                        13 + 500 + 100, gh / 2 - gh * 0.05,
-                        33 + 500 + 100, gh / 2 - 20 - gh * 0.05,
-                        13 + 500 + 100, gh / 2 - 40 - gh * 0.05,
-                        13 + 500, gh / 2 - 40 - gh * 0.05,
-                        -26 + 500, gh / 2 - gh * 0.05)
 
 end
 

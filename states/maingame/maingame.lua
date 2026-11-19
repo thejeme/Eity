@@ -28,7 +28,7 @@ local function advanceChart(target, speedMultiplier)
       if note[4] == 0 then
         createArrow(note[1], lane, speed)
       else
-        createSlider(note[1], lane, speed, note[4])
+        createSlider(lane, speed, note[4])
       end
       nextNote = nextNote + 1
     end

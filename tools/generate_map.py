@@ -215,11 +215,7 @@ def notes_for_chart(events, difficulty, style, loudness):
             length = round(hold * speed)
             last_hold_bar = bar
         stamp = round(1000 * (when + 0.4 - 396 / difficulty.speed))
-        reverse = (difficulty in (DIFFICULTIES["Hard"], DIFFICULTIES["Insane"])
-                   and not fraction and step == 0 and bar % 4 == style % 4
-                   and when - previous_time > 0.32 and strength > 0.45)
-        approach = (lane + 2) % 4 if reverse else lane
-        notes.append((2 if reverse else 1, CLOCKWISE[approach], speed, length, stamp))
+        notes.append((1, CLOCKWISE[lane], speed, length, stamp))
         previous_lane, previous_time = lane, when
     return notes
 

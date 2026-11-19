@@ -2,9 +2,8 @@ Slider = {}
 
 listOfSliders = {}
 
-function createSlider(type, direction, speed, length)
+function createSlider(direction, speed, length)
   slider = {}
-  slider.type = type -- normal, reverse --
   slider.direction = direction -- 1 = left, 2 = down, 3 = right, 4 = up  --
   if (direction == 1) then
     slider.tempPosition = gw / 2 + gh / 2
@@ -17,7 +16,6 @@ function createSlider(type, direction, speed, length)
   end
   slider.shouldPlayhitSound = true
   slider.speed = speed
-  slider.rotation = 0
   slider.maxlength = length
   slider.length = length
   slider.scoreLength = length
@@ -30,264 +28,55 @@ function createSlider(type, direction, speed, length)
   table.insert(listOfSliders, slider)
 end
 
+local facing = {"right", "up", "left", "down"}
+
 function Slider:update(dt)
-  for i, v in ipairs(listOfSliders) do
-    v.holding = false
-
-    if (v.direction == 4) then
-    v.tempPosition = v.tempPosition - v.speed * dt
-    if v.tempPosition < gh * 0.82 and v.type == 2 then
-      if(v.rotation < math.pi) then
-          v.rotation = v.rotation + v.speed * 0.05 * dt
-      else
-        v.rotation = math.pi
-      end
-    end
-      if(v.tempPosition < gh * 0.615) then
-        v.tempPosition = gh * 0.615
-          if(v.length > 0) then
-            v.length = v.length - v.speed * dt
-            if((v.type == 1 and player.direction == "down") or (v.type == 2 and player.direction == "up")) then
-              v.holding = true
-              v.scoreLength = v.scoreLength - v.speed * dt
-              player:blink(dt)
-              if saveManager.settings.isEnabledTicksound == true then
-                soundManager.hitSlidersrc:play()
-              else
-                if (v.shouldPlayhitSound) then
-                  soundManager.playSoundEffect(soundManager.hitsrc)
-                  v.shouldPlayhitSound = false
-                end
-              end
-            end
-          else
-            table.remove(listOfSliders, i)
-            scoreManager.destroyednotes = scoreManager.destroyednotes + 2
-            scoreManager.destroyedArrows = scoreManager.destroyedArrows + 1
-            if((v.scoreLength <= 0 and v.type == 1) or (v.scoreLength <= 0 and v.type == 2)) then
-              scoreManager.AddScore("sliderStart", v)
-            elseif((v.scoreLength >= 0 and v.type == 1) or (v.scoreLength >= 0 and v.type == 2)) then
-              scoreManager.AddScore("miss", v)
-            end
-
-            if (v.type == 1) then
-              if (player.direction == "down") then
-                scoreManager.collectedBlueSliders = scoreManager.collectedBlueSliders + 1
-                soundManager.playSoundEffect(soundManager.hitsrc)
-                scoreManager.AddScore("sliderEnd", v)
-              else
-                soundManager.playSoundEffect(soundManager.misssrc)
-                scoreManager.AddScore("miss", v)
-              end
-            elseif (v.type == 2) then
-              scoreManager.collectedYellowSliders = scoreManager.collectedYellowSliders + 1
-              if (player.direction == "up") then
-                soundManager.playSoundEffect(soundManager.hitsrc)
-                scoreManager.AddScore("sliderEnd", v)
-              else
-                soundManager.playSoundEffect(soundManager.misssrc)
-                scoreManager.AddScore("miss", v)
-              end
-            end
-          end
-        end
-
-    elseif (v.direction == 2) then
-    v.tempPosition = v.tempPosition + v.speed * dt
-    if(v.tempPosition > gh * 0.18) and v.type == 2 then
-      if(v.rotation < math.pi) then
-          v.rotation = v.rotation + v.speed * 0.05 * dt
-      else
-        v.rotation = math.pi
-      end
-    end
-    if(v.tempPosition > gh * 0.385) then
-      v.tempPosition = gh * 0.385
-        if(v.length > 0) then
-          v.length = v.length - v.speed * dt
-        if((v.type == 1 and player.direction == "up") or (v.type == 2 and player.direction == "down")) then
-          v.holding = true
-          v.scoreLength = v.scoreLength - v.speed * dt
+  for i = #listOfSliders, 1, -1 do
+    local slider = listOfSliders[i]
+    local lane = slider.direction
+    local sign = (lane == 1 or lane == 4) and -1 or 1
+    local edge = lane % 2 == 1 and gw * (0.5 - sign * 0.075) or gh * (0.5 - sign * 0.115)
+    local travel = slider.speed * dt
+    slider.holding = false
+    slider.tempPosition = slider.tempPosition + sign * travel
+    if (slider.tempPosition - edge) * sign > 0 then
+      slider.tempPosition = edge
+      local aligned = player.direction == facing[lane]
+      if slider.length > 0 then
+        slider.length = slider.length - travel
+        slider.holding = aligned
+        if aligned then
+          slider.scoreLength = slider.scoreLength - travel
           player:blink(dt)
-          if saveManager.settings.isEnabledTicksound == true then
+          if saveManager.settings.isEnabledTicksound then
             soundManager.hitSlidersrc:play()
-          else
-            if (v.shouldPlayhitSound) then
-              soundManager.playSoundEffect(soundManager.hitsrc)
-              v.shouldPlayhitSound = false
-            end
-          end
-        end
-        else
-          table.remove(listOfSliders, i)
-          scoreManager.destroyednotes = scoreManager.destroyednotes + 2
-          scoreManager.destroyedArrows = scoreManager.destroyedArrows + 1
-          if((v.scoreLength <= 0 and v.type == 1) or (v.scoreLength <= 0 and v.type == 2)) then
-            scoreManager.AddScore("sliderStart", v)
-          elseif((v.scoreLength >= 0 and v.type == 1) or (v.scoreLength >= 0 and v.type == 2)) then
-            scoreManager.AddScore("miss", v)
-          end
-
-          if (v.type == 1) then
-            if (player.direction == "up") then
-              scoreManager.collectedBlueSliders = scoreManager.collectedBlueSliders + 1
-              soundManager.playSoundEffect(soundManager.hitsrc)
-              scoreManager.AddScore("sliderEnd", v)
-            else
-              soundManager.playSoundEffect(soundManager.misssrc)
-              scoreManager.AddScore("miss", v)
-            end
-          elseif (v.type == 2) then
-            if (player.direction == "down") then
-              scoreManager.collectedYellowSliders = scoreManager.collectedYellowSliders + 1
-              soundManager.playSoundEffect(soundManager.hitsrc)
-              scoreManager.AddScore("sliderEnd", v)
-            else
-              soundManager.playSoundEffect(soundManager.misssrc)
-              scoreManager.AddScore("miss", v)
-            end
-          end
-        end
-      end
-
-    elseif (v.direction == 1) then
-    v.tempPosition = v.tempPosition - v.speed * dt
-    if(v.tempPosition < gw * 0.68) and v.type == 2 then
-      if(v.rotation < math.pi) then
-          v.rotation = v.rotation + v.speed * 0.05 * dt
-      else
-        v.rotation = math.pi
-      end
-    end
-    if(v.tempPosition < gw * 0.575) then
-      v.tempPosition = gw * 0.575
-        if(v.length > 0) then
-          v.length = v.length - v.speed * dt
-          if((v.type == 1 and player.direction == "right") or (v.type == 2 and player.direction == "left")) then
-            v.holding = true
-            v.scoreLength = v.scoreLength - v.speed * dt
-            player:blink(dt)
-            if saveManager.settings.isEnabledTicksound == true then
-              soundManager.hitSlidersrc:play()
-            else
-              if (v.shouldPlayhitSound) then
-                soundManager.playSoundEffect(soundManager.hitsrc)
-                v.shouldPlayhitSound = false
-              end
-            end
-          end
-        else
-          table.remove(listOfSliders, i)
-          scoreManager.destroyednotes = scoreManager.destroyednotes + 2
-          scoreManager.destroyedArrows = scoreManager.destroyedArrows + 1
-          if((v.scoreLength <= 0 and v.type == 1) or (v.scoreLength <= 0 and v.type == 2)) then
-            scoreManager.AddScore("sliderStart", v)
-          elseif((v.scoreLength >= 0 and v.type == 1) or (v.scoreLength >= 0 and v.type == 2)) then
-            scoreManager.AddScore("miss", v)
-          end
-
-          if (v.type == 1) then
-            if (player.direction == "right") then
-              scoreManager.collectedBlueSliders = scoreManager.collectedBlueSliders + 1
-              soundManager.playSoundEffect(soundManager.hitsrc)
-              scoreManager.AddScore("sliderEnd", v)
-            else
-              soundManager.playSoundEffect(soundManager.misssrc)
-              scoreManager.AddScore("miss", v)
-            end
-          elseif (v.type == 2) then
-            if (player.direction == "left") then
-              scoreManager.collectedYellowSliders = scoreManager.collectedYellowSliders + 1
-              soundManager.playSoundEffect(soundManager.hitsrc)
-              scoreManager.AddScore("sliderEnd", v)
-            else
-              soundManager.playSoundEffect(soundManager.misssrc)
-              scoreManager.AddScore("miss", v)
-            end
-          end
-        end
-      end
-
-  elseif (v.direction == 3) then
-  v.tempPosition = v.tempPosition + v.speed * dt
-  if(v.tempPosition > gw * 0.32) and v.type == 2 then
-    if(v.rotation < math.pi) then
-        v.rotation = v.rotation + v.speed * 0.05 * dt
-    else
-      v.rotation = math.pi
-    end
-  end
-  if(v.tempPosition > gw * 0.425) then
-    v.tempPosition = gw * 0.425 
-      if(v.length > 0) then
-        v.length = v.length - v.speed * dt
-        if((v.type == 1 and player.direction == "left") or (v.type == 2 and player.direction == "right")) then
-          v.holding = true
-          v.scoreLength = v.scoreLength - v.speed * dt
-          player:blink(dt)
-          if saveManager.settings.isEnabledTicksound == true then
-            soundManager.hitSlidersrc:play()
-          else
-            if (v.shouldPlayhitSound) then
-              soundManager.playSoundEffect(soundManager.hitsrc)
-              v.shouldPlayhitSound = false
-            end
+          elseif slider.shouldPlayhitSound then
+            soundManager.playSoundEffect(soundManager.hitsrc)
+            slider.shouldPlayhitSound = false
           end
         end
       else
         table.remove(listOfSliders, i)
         scoreManager.destroyednotes = scoreManager.destroyednotes + 2
         scoreManager.destroyedArrows = scoreManager.destroyedArrows + 1
-        if((v.scoreLength <= 0 and v.type == 1) or (v.scoreLength <= 0 and v.type == 2)) then
-          scoreManager.AddScore("sliderStart", v)
-        elseif((v.scoreLength >= 0 and v.type == 1) or (v.scoreLength >= 0 and v.type == 2)) then
-          scoreManager.AddScore("miss", v)
-        end
-
-        if (v.type == 1) then
-          if (player.direction == "left") then
-            scoreManager.collectedBlueSliders = scoreManager.collectedBlueSliders + 1
-            soundManager.playSoundEffect(soundManager.hitsrc)
-            scoreManager.AddScore("sliderEnd", v)
-          else
-            soundManager.playSoundEffect(soundManager.misssrc)
-            scoreManager.AddScore("miss", v)
-          end
-        elseif (v.type == 2) then
-          if (player.direction == "right") then
-            scoreManager.collectedYellowSliders = scoreManager.collectedYellowSliders + 1
-            soundManager.playSoundEffect(soundManager.hitsrc)
-            scoreManager.AddScore("sliderEnd", v)
-          else
-            soundManager.playSoundEffect(soundManager.misssrc)
-            scoreManager.AddScore("miss", v)
-          end
-        end
+        scoreManager.AddScore(slider.scoreLength <= 0 and "sliderStart" or "miss", slider)
+        if aligned then scoreManager.collectedBlueSliders = scoreManager.collectedBlueSliders + 1 end
+        soundManager.playSoundEffect(aligned and soundManager.hitsrc or soundManager.misssrc)
+        scoreManager.AddScore(aligned and "sliderEnd" or "miss", slider)
       end
     end
   end
-end
-
 end
 
 function Slider:draw()
   for i, v in ipairs(listOfSliders) do
   if (v.direction == 4) then
     love.graphics.push()
-    love.graphics.translate(gw / 2, gh / 2)
-    love.graphics.rotate(v.rotation)
-    love.graphics.translate(gw / 2 * -1, gh / 2 * -1)
 
     love.graphics.setColor(0.25, 0.25, 0.25, v.alpha)
     love.graphics.rectangle('fill', gw / 2 - 40, 35 + v.tempPosition, 80, v.length)
 
-    if (v.type == 1) then
-      love.graphics.setColor(34 / 255, 150 / 255, 227 / 255, v.alpha)
-
-    elseif (v.type == 2) then
-        love.graphics.setColor(219 / 255, 130 / 255, 52 / 255, v.alpha)
-
-    end
+    love.graphics.setColor(34 / 255, 150 / 255, 227 / 255, v.alpha)
     love.graphics.polygon('fill', gw / 2, -4 + v.tempPosition,
                           gw / 2 + 40, 35 + v.tempPosition,
                           gw / 2 + 20, 55 + v.tempPosition,
@@ -319,20 +108,11 @@ function Slider:draw()
       
       elseif (v.direction == 2) then
         love.graphics.push()
-        love.graphics.translate(gw / 2, gh / 2)
-        love.graphics.rotate(v.rotation)
-        love.graphics.translate(gw / 2 * -1, gh / 2 * -1)
 
         love.graphics.setColor(0.25, 0.25, 0.25, v.alpha)
         love.graphics.rectangle('fill', gw / 2 - 40, -35 + v.tempPosition - v.length, 80, v.length)
 
-        if (v.type == 1) then
-          love.graphics.setColor(34 / 255, 150 / 255, 227 / 255, v.alpha)
-
-        elseif (v.type == 2) then
-            love.graphics.setColor(219 / 255, 130 / 255, 52 / 255, v.alpha)
-
-        end
+        love.graphics.setColor(34 / 255, 150 / 255, 227 / 255, v.alpha)
         love.graphics.polygon('fill', gw / 2, 4 + v.tempPosition,
                               gw / 2 + 40, -35 + v.tempPosition,
                               gw / 2 + 20, -55 + v.tempPosition,
@@ -364,20 +144,11 @@ function Slider:draw()
       love.graphics.pop()
       elseif (v.direction == 1) then
         love.graphics.push()
-        love.graphics.translate(gw / 2, gh / 2)
-        love.graphics.rotate(v.rotation)
-        love.graphics.translate(gw / 2 * -1, gh / 2 * -1)
 
         love.graphics.setColor(0.25, 0.25, 0.25, v.alpha)
         love.graphics.rectangle('fill', 13 + v.tempPosition, gh / 2 - 40, v.length, 80)
 
-        if (v.type == 1) then
-          love.graphics.setColor(34 / 255, 150 / 255, 227 / 255, v.alpha)
-
-        elseif (v.type == 2) then
-            love.graphics.setColor(219 / 255, 130 / 255, 52 / 255, v.alpha)
-
-        end
+        love.graphics.setColor(34 / 255, 150 / 255, 227 / 255, v.alpha)
 
         love.graphics.polygon('fill', -26 + v.tempPosition , gh / 2,
                               13 + v.tempPosition, gh / 2 + 40,
@@ -408,20 +179,11 @@ function Slider:draw()
 
         elseif (v.direction == 3) then
         love.graphics.push()
-        love.graphics.translate(gw / 2, gh / 2)
-        love.graphics.rotate(v.rotation)
-        love.graphics.translate(gw / 2 * -1, gh / 2 * -1)
 
         love.graphics.setColor(0.25, 0.25, 0.25, v.alpha)
         love.graphics.rectangle('fill', (13 - v.tempPosition + v.length) * -1, gh / 2 - 40, v.length, 80)
 
-        if (v.type == 1) then
-          love.graphics.setColor(34 / 255, 150 / 255, 227 / 255, v.alpha)
-
-        elseif (v.type == 2) then
-            love.graphics.setColor(219 / 255, 130 / 255, 52 / 255, v.alpha)
-
-        end
+        love.graphics.setColor(34 / 255, 150 / 255, 227 / 255, v.alpha)
 
 
         love.graphics.polygon('fill', 26 + v.tempPosition, gh / 2,
