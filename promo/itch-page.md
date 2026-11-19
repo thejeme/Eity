@@ -2,7 +2,7 @@
 
 **Follow the beat. Face the right way.**
 
-Arrows rush toward you from four directions. Rotate to catch the notes, stay lined up through sliders, and watch for notes that flip direction. Switch to Dodge to avoid red notes, or try Orbit for a pattern that turns every eight notes. Climb from easier charts to faster tracks, chase a higher grade, and change the challenge with speed and visibility mods.
+Arrows rush toward you from four directions. Rotate to catch the notes, stay lined up through sliders, and watch for notes that flip direction. Open Mods to try Dodge, where you avoid red notes, or Mirror to swap left and right. Climb from easier charts to faster tracks, chase a higher grade, and change the challenge with speed and visibility mods.
 
 ## Controls
 

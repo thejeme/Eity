@@ -7,7 +7,7 @@ Songselect = {}
 local bigFont, smallFont, smallestFont
 local barOpacity = 0.8
 
-local modeButton, orbitButton
+local dodgeButton, mirrorButton
 local songControls, modControls, songRows
 local playButton, backButton, randomButton, modsButton
 local modsHiddenButton, modsHalfSpeedButton, modsDoubleSpeedButton, modsHiddenButton, modsFlashlightButton, modsNoFailButton, modsAutoButton
@@ -22,12 +22,6 @@ function Songselect:load()
   smallestFont = love.graphics.newFont("assets/roboto.ttf", 18)
   
   backButton = newButton(50, gh * 0.94, 150, 50, 10, "Back", GrayOpacity6, Green, Blue, "center", 0, 10, function() menustate = "Startmenu" end)
-  modeButton = newButton(gw - 840, gh * 0.94, 195, 50, 10, "Mode: Catch", GrayOpacity6, Green, Blue, "center", 0, 10, function()
-    modManager.isDodge = not modManager.isDodge
-    local mode = modManager.isDodge and "Dodge" or "Catch"
-    modeButton.text = "Mode: " .. mode
-    saveManager:loadScores(modManager.isDodge and "dodge" or "standard")
-  end)
   modsButton = newButton(gw - 600, gh * 0.94, 150, 50, 10, "Mods", GrayOpacity6, Green, Blue, "center", 0, 10, function() isMods = true end)
   randomButton = newButton(gw - 400, gh * 0.94, 150, 50, 10, "Random", GrayOpacity6, Green, Blue, "center", 0, 10, function() mapList.PickRandomMapIndex() end)
   playButton = newButton(gw - 200, gh * 0.94, 150, 50, 10, "Play", GrayOpacity6, Green, Blue, "center", 0, 10, function() gameManager.RestartNewMap() end)
@@ -38,9 +32,14 @@ function Songselect:load()
   modsFlashlightButton = newButton(gw * 0.52, gh * 0.5, 150, 50, 10, "Flashlight", GrayOpacity6, Red, Green, "center", 0, 10, function() enableFlashlightMod() end, true)
   modsNoFailButton = newButton(gw * 0.4, gh * 0.6, 150, 50, 10, "No Fail", GrayOpacity6, Red, Green, "center", 0, 10, function() enableNoFailMod() end, true)
   modsAutoButton = newButton(gw * 0.52, gh * 0.6, 150, 50, 10, "Auto", GrayOpacity6, Red, Green, "center", 0, 10, function() enableAutoMod() end, true)
-  orbitButton = newButton(gw * 0.46, gh * 0.7, gw * 0.08, 50, 10, "Orbit", GrayOpacity6, Red, Green, "center", 0, 10, function()
-    modManager.isOrbit = not modManager.isOrbit
-    if modManager.isOrbit then orbitButton:setHighlightOutlineColor() else orbitButton:setNormalOutlineColor() end
+  dodgeButton = newButton(gw * 0.4, gh * 0.7, 150, 50, 10, "Dodge", GrayOpacity6, Red, Green, "center", 0, 10, function()
+    modManager.isDodge = not modManager.isDodge
+    if modManager.isDodge then dodgeButton:setHighlightOutlineColor() else dodgeButton:setNormalOutlineColor() end
+    saveManager:loadScores(modManager.isDodge and "dodge" or "standard")
+  end, true)
+  mirrorButton = newButton(gw * 0.52, gh * 0.7, 150, 50, 10, "Mirror", GrayOpacity6, Red, Green, "center", 0, 10, function()
+    modManager.isMirror = not modManager.isMirror
+    if modManager.isMirror then mirrorButton:setHighlightOutlineColor() else mirrorButton:setNormalOutlineColor() end
   end, true)
   modsbackButton = newButton(gw * 0.46, gh * 0.81, gw * 0.08, 50, 10, "Back", GrayOpacity6, White, White, "center", 0, 10, function() isMods = false end)
   
@@ -57,9 +56,9 @@ function Songselect:load()
     end
     return true
   end
-  songControls = {songRows, backButton, modeButton, modsButton, randomButton, playButton}
+  songControls = {songRows, backButton, modsButton, randomButton, playButton}
   modControls = {modsHalfSpeedButton, modsDoubleSpeedButton, modsHiddenButton,
-    modsFlashlightButton, modsNoFailButton, modsAutoButton, orbitButton, modsbackButton}
+    modsFlashlightButton, modsNoFailButton, modsAutoButton, dodgeButton, mirrorButton, modsbackButton}
 end
 
 function Songselect:gamepadpressed(button)
@@ -78,7 +77,6 @@ function Songselect:update(dt)
   mapList:update(dt)
   if not isMods then
     backButton:update(dt)
-    modeButton:update(dt)
     modsButton:update(dt)
     randomButton:update(dt)
     playButton:update(dt)      
@@ -89,7 +87,8 @@ function Songselect:update(dt)
     modsFlashlightButton:update(dt)   
     modsNoFailButton:update(dt)   
     modsAutoButton:update(dt)   
-    orbitButton:update(dt)
+    dodgeButton:update(dt)
+    mirrorButton:update(dt)
     modsbackButton:update(dt)   
   end  
 end
@@ -112,12 +111,12 @@ function Songselect:draw()
 end
 
 function Songselect:keypressed(key)
-  if key == "d" and not isMods then
-    modeButton.func()
+  if key == "d" and isMods then
+    dodgeButton.func()
   elseif key == "m" then
     isMods = not isMods
-  elseif key == "o" and isMods then
-    orbitButton.func()
+  elseif key == "r" and isMods then
+    mirrorButton.func()
   elseif key == "escape" and isMods then
     isMods = false
   elseif (key == "up" and not isMods) or (key == "left" and not isMods) then
@@ -133,7 +132,6 @@ function Songselect:mousepressed(x, y, button)
   if not isMods then       
     mapList:mousepressed(x, y, button)                                                  
     backButton:mousepressed(x, y, button)
-    modeButton:mousepressed(x, y, button)
     modsButton:mousepressed(x, y, button)
     randomButton:mousepressed(x, y, button)
     playButton:mousepressed(x, y, button)    
@@ -144,7 +142,8 @@ function Songselect:mousepressed(x, y, button)
     modsFlashlightButton:mousepressed(x, y, button)
     modsNoFailButton:mousepressed(x, y, button) 
     modsAutoButton:mousepressed(x, y, button)
-    orbitButton:mousepressed(x, y, button)
+    dodgeButton:mousepressed(x, y, button)
+    mirrorButton:mousepressed(x, y, button)
     modsbackButton:mousepressed(x, y, button)
   end
 end
@@ -240,7 +239,6 @@ function BottomBar()
   love.graphics.line(0, gh * 0.92, gw, gh * 0.92)
   
   backButton:draw()
-  modeButton:draw()
   modsButton:draw()
   randomButton:draw()
   playButton:draw()
@@ -285,9 +283,10 @@ function Mods()
   modsFlashlightButton:draw()
   modsNoFailButton:draw()
   modsAutoButton:draw()
-  orbitButton:draw()
+  dodgeButton:draw()
+  mirrorButton:draw()
   love.graphics.setColor(White)
-  love.graphics.printf("Orbit turns the pattern every eight notes.", 0, gh * 0.76, gw, "center")
+  love.graphics.printf("Dodge: avoid red notes.    Mirror: swap left and right.", 0, gh * 0.76, gw, "center")
   modsbackButton:draw()
 end
 

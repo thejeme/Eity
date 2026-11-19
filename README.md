@@ -44,7 +44,7 @@ Song Select plays a 12-second excerpt after the selection settles. Switching awa
 
 ## Modes and modifiers
 
-Catch blue notes and follow the reversed direction for orange notes. Switch the Song Select mode to Dodge to turn every arrival into a red tap. Face any of the other three directions to score. Catch and Dodge each keep their own grades and personal bests for the regenerated charts. The Orbit modifier rotates the pattern clockwise after every eight notes while preserving musical timing. On keyboard, D switches modes, M opens Mods, and O toggles Orbit there.
+Catch blue notes and follow the reversed direction for orange notes. Enable Dodge on the Mods page to turn every arrival into a red tap. Face any of the other three directions to score. Catch and Dodge each keep their own grades and personal bests for the regenerated charts. Mirror swaps left and right throughout the song. On keyboard, M opens Mods. There, D toggles Dodge and R toggles Mirror.
 
 ## Charts
 
