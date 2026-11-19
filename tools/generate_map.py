@@ -50,6 +50,18 @@ def analyze(path, bpm=None):
     flux = 0.44 * drum_flux[0] + 0.26 * drum_flux[1] + 0.12 * drum_flux[2] + 0.18 * mix_flux
     loudness = librosa.feature.rms(y=signal, frame_length=1024, hop_length=HOP)[0]
     loudness /= max(float(np.quantile(loudness, 0.9)), 1e-7)
+    # Sparse instrumental passages can change tempo freely. When silence separates
+    # most attacks, their measured starts are better anchors than a fitted tempo.
+    if bpm is None and np.mean(loudness < 0.035) > 0.40:
+        boundaries = np.diff(np.r_[False, loudness > 0.10, False].astype(int))
+        starts, ends = np.flatnonzero(boundaries == 1), np.flatnonzero(boundaries == -1)
+        attacks = starts[ends - starts >= 4]
+        intervals = np.diff(attacks) * HOP / RATE
+        if len(intervals) >= 3 and np.mean((intervals >= 0.24) & (intervals <= 1.5)) > 0.85:
+            period = np.median(intervals)
+            beats = np.r_[attacks * HOP / RATE, attacks[-1] * HOP / RATE + period]
+            peaks, _ = find_peaks(flux, distance=5, prominence=0.12)
+            return duration, 60 / period, "onset", beats, flux, loudness, peaks
     estimated_bpm, frames = librosa.beat.beat_track(
         onset_envelope=flux, sr=RATE, hop_length=HOP, bpm=bpm, trim=False, tightness=100,
     )
