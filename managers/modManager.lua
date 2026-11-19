@@ -32,7 +32,7 @@ function modManager.prepareChart(notes)
   local chart = {}
   for i, note in ipairs(notes) do
     local lane = math.ceil(note[2] / 128)
-    if modManager.isMirror and lane % 2 == 1 then lane = 4 - lane end
+    if modManager.isMirror then lane = (lane + 1) % 4 + 1 end
     chart[i] = {modManager.isDodge and 3 or note[1], lane * 128 - 64,
       note[3], modManager.isDodge and 0 or note[4], note[5]}
   end

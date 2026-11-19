@@ -44,7 +44,7 @@ Song Select plays a 12-second excerpt after the selection settles. Switching awa
 
 ## Modes and modifiers
 
-Face incoming blue notes and stay lined up through holds. Enable Dodge on the Mods page to turn every arrival into a red tap. Face any of the other three directions to score. Catch and Dodge each keep their own grades and personal bests for the regenerated charts. Mirror swaps left and right throughout the song. On keyboard, M opens Mods. There, D toggles Dodge and R toggles Mirror.
+Face incoming blue notes and stay lined up through holds. Catch and Dodge each keep their own grades and personal bests for the regenerated charts. On keyboard, M opens Mods. There, D toggles Dodge and R toggles Mirror.
 
 ## Charts
 

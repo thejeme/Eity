@@ -261,7 +261,7 @@ function TopBar()
                          string.format("%02d", math.floor(mapManager.getLengthOfIndex(mapList.getSelectedMapIndex()) / modManager.getSpeed() % 60))
                          , 15, 40, 700, "left")
   if modManager.isDodge then
-    love.graphics.printf("Dodge: face away from red notes", gw - 465, 28, 450, "right")
+    love.graphics.printf("Dodge", gw - 465, 28, 450, "right")
   end
   love.graphics.setFont(scoreFont)
   love.graphics.printf("Highscore " .. string.format("%08d", saveManager.highscores.mapScore[mapList.getSelectedMapIndex()]), 0, 20, gw, "center")
@@ -285,8 +285,6 @@ function Mods()
   modsAutoButton:draw()
   dodgeButton:draw()
   mirrorButton:draw()
-  love.graphics.setColor(White)
-  love.graphics.printf("Dodge: avoid red notes.    Mirror: swap left and right.", 0, gh * 0.76, gw, "center")
   modsbackButton:draw()
 end
 
