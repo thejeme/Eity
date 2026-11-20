@@ -23,6 +23,7 @@ end
 
 function scoreManager.Restart()
   feedback.reset()
+  scoreManager.runMods = modManager.getResultLabel()
   scoreManager.score = 0
   scoreManager.combo = 0
   scoreManager.maxCombo = 0

@@ -112,6 +112,11 @@ function Rankingscreen.Results()
   love.graphics.rectangle('line', 50, gh * 0.15, gw * 0.5, gh * 0.53, 15)
   love.graphics.setColor(1, 1, 1, 1)
   love.graphics.printf("Score " .. string.format("%08d", scoreManager.score), 50, gh * 0.16, gw / 2, "center")
+  if scoreManager.runMods ~= "" then
+    love.graphics.setFont(descFont)
+    love.graphics.printf(scoreManager.runMods, 50, gh * 0.225, gw / 2, "center")
+    love.graphics.setFont(smallFont)
+  end
   if modManager.isDodge then
     love.graphics.printf("Dodged " .. scoreManager.hits .. " / " .. #mapNotes, 50, gh * 0.36, gw / 2, "center")
   else

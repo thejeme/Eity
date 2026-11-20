@@ -27,6 +27,22 @@ function modManager.getSpeed()
   return modManager.speed
 end
 
+local resultLabels = {
+  {"isDodge", "Dodge"}, {"isMirror", "Mirror"}, {"isHidden", "Hidden"},
+  {"isFlashlight", "Flashlight"}, {"isNoFail", "No Fail"}, {"isAuto", "Auto"},
+}
+
+function modManager.getResultLabel()
+  local labels = {}
+  for _, mod in ipairs(resultLabels) do
+    if modManager[mod[1]] then labels[#labels + 1] = mod[2] end
+  end
+  if modManager.speed ~= 1 then
+    labels[#labels + 1] = string.format("%.2f×", modManager.speed)
+  end
+  return table.concat(labels, " · ")
+end
+
 function modManager.prepareChart(notes)
   if not modManager.isDodge and not modManager.isMirror then return notes end
   local chart = {}
